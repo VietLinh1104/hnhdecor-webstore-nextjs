@@ -4,6 +4,7 @@
 
 import React from "react";
 import { X, Plus, Minus, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 // Types
 interface CartItem {
@@ -33,12 +34,26 @@ export const CartSidebarSection = ({
   onDecreaseQuantity,
   onRemoveItem,
 }: CartSidebarSectionProps): JSX.Element => {
+  const router = useRouter();
+  
   const formatVND = (value: number): string =>
     value.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
 
   // Tính tổng tiền giỏ hàng
   const totalAmount = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+
+  // Hàm chuyển đến trang checkout
+  const handleCheckout = () => {
+    onClose(); // Đóng sidebar trước
+    router.push('/checkout'); // Chuyển đến trang checkout
+  };
+
+  // Hàm chuyển đến trang giỏ hàng chi tiết
+  const handleViewCart = () => {
+    onClose(); // Đóng sidebar trước
+    router.push('/cart'); // Chuyển đến trang cart
+  };
 
   return (
     <>
@@ -159,15 +174,21 @@ export const CartSidebarSection = ({
             </div>
             
             <div className="space-y-2">
-              <button className="w-full bg-[#ec720e] text-white py-3 rounded-lg hover:bg-orange-700 transition-colors font-medium">
-                Thanh toán
-              </button>
-              <button 
-                onClick={onClose}
-                className="w-full border border-gray-300 py-3 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                Tiếp tục mua sắm
-              </button>
+                <div className="flex gap-5">
+
+                    <button 
+                        onClick={handleCheckout}
+                        className="w-full bg-[#ec720e] text-white py-3 rounded-lg hover:bg-orange-700 transition-colors font-medium"
+                    >
+                        Thanh toán ngay
+                    </button>
+                    <button 
+                        onClick={handleViewCart}
+                        className="w-full border border-[#ec720e] text-[#ec720e] py-3 rounded-lg hover:bg-orange-50 transition-colors font-medium"
+                    >
+                        Xem giỏ hàng
+                    </button>
+                </div>
             </div>
           </div>
         )}

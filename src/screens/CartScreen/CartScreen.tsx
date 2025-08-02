@@ -3,9 +3,9 @@ import { HeaderNavbarSection } from "@/components/sections/HeaderNavbarSection";
 import { FooterSection } from "@/components/sections/FooterSection";
 import { BreadcrumbSection } from "@/components/sections/BreadcrumbSection/BreadcrumbSection";
 import { RecentSection } from "@/components/sections/RecentSection/RecentSection";
-import { ProductDetailSection } from "@/components/sections/ProductDetailSection/ProductDetailSection";
+import { CartSection } from "@/components/sections/CartSection/CartSection";
 
-export const ProductDetailScreen = (): JSX.Element => {
+export const CartScreen = (): JSX.Element => {
   return (
     <div className="flex flex-col items-center w-full bg-white">
       <HeaderNavbarSection />
@@ -13,7 +13,8 @@ export const ProductDetailScreen = (): JSX.Element => {
       {/* main */}
       <main>
         <BreadcrumbSection />
-        <ProductDetailSection />
+        <CartSection />
+
         <RecentSection />
       </main>
       <FooterSection />
