@@ -5,29 +5,9 @@ import { Plus, Minus, Trash2, Tag, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link"; 
 
-// Types
-interface CartItem {
-  id: number;
-  name: string;
-  image: string;
-  price: number;
-  originalPrice: number;
-  quantity: number;
-  color: string;
-  colorName: string;
-  sku: string;
-}
-
-interface Voucher {
-  code: string;
-  title: string;
-  discount: number;
-  minOrder: number;
-  type: "percent" | "fixed";
-  isAvailable: boolean;
-}
-
+import { CartItem, Voucher } from "@/types"; // Adjust the import path as necessary
 // Mock data
 const mockCartItems: CartItem[] = [
   {
@@ -407,12 +387,14 @@ export const CartSection = (): JSX.Element => {
             </div>
 
             {/* Checkout Button */}
-            <Button 
+            <Link href="/checkout" passHref>
+              <Button 
                 className="w-full bg-[#ec720e] hover:bg-orange-700 text-white py-3 text-lg font-medium"
                 size="lg"
-            >
-                Proceed to Checkout
-            </Button>
+              >
+                Tiến hành đặt hàng
+              </Button>
+            </Link>
 
             {/* Additional Info */}
             <div className="mt-4 text-xs text-gray-500 space-y-1">

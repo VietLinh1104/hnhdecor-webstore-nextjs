@@ -5,22 +5,12 @@
 import React from "react";
 import { X, Plus, Minus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { CartItem2 } from "@/types"; // Import your CartItem type
 
-// Types
-interface CartItem {
-  id: number;
-  name: string;
-  image: string;
-  price: number;
-  originalPrice: number;
-  quantity: number;
-  color: string;
-}
-
-interface CartSidebarSectionProps {
+export interface CartSidebarSectionProps {
   isOpen: boolean;
   onClose: () => void;
-  cartItems: CartItem[];
+  cartItems: CartItem2[];
   onIncreaseQuantity: (id: number) => void;
   onDecreaseQuantity: (id: number) => void;
   onRemoveItem: (id: number) => void;
