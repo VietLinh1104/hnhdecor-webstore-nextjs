@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import type { Coupon } from "@/types";
+import type { Coupon } from "@/types/Types";
 
 export const CouponsSection = (): JSX.Element => {
   const coupons: Coupon[] = [
