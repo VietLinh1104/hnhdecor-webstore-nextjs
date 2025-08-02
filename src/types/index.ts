@@ -61,6 +61,7 @@ export interface ShippingInfo {
   note: string;
 }
 
+
 export interface OrderSummary {
   subtotal: number;
   shippingFee: number;
@@ -79,3 +80,10 @@ export interface CartItem2 {
   color: string;
 }
 
+export interface CategoryItem {
+  id: number;
+  name: string;
+  productCount: number;
+  image: string;
+  href: string;
+}
