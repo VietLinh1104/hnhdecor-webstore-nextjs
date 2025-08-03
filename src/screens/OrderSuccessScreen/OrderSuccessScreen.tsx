@@ -17,7 +17,7 @@ export const OrderSuccessScreen = (): JSX.Element => {
 
         <OrderSuccessSection />
 
-        <RecentSection />
+        {/* <RecentSection /> */}
       </main>
       <FooterSection />
     </div>

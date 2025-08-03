@@ -11,11 +11,11 @@ export const CartScreen = (): JSX.Element => {
       <HeaderNavbarSection />
 
       {/* main */}
-      <main>
+      <main className="w-full">
         <BreadcrumbSection />
         <CartSection />
 
-        <RecentSection />
+        {/* <RecentSection /> */}
       </main>
       <FooterSection />
     </div>

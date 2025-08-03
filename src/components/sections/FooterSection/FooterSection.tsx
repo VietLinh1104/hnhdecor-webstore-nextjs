@@ -1,5 +1,3 @@
-//MainContentSection.tsx
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,17 +43,18 @@ export const FooterSection = (): JSX.Element => {
   ];
 
   return (
-    <footer className="flex items-center justify-center relative self-stretch w-full flex-[0_0_auto] bg-[#292929]">
-      <div className="flex w-full max-w-screen-2xl items-start justify-center gap-[108px] px-4 py-20 relative">
+    <footer className="flex items-center justify-center relative self-stretch w-full flex-[0_0_auto] bg-[#292929] mt-28">
+      <div className="flex flex-col lg:flex-row w-full max-w-screen-2xl items-start justify-center gap-6 sm:gap-8 lg:gap-[108px] px-4 py-8 sm:py-12 lg:py-20 relative">
+        
         {/* Company information column */}
-        <div className="flex flex-col w-[330px] items-start gap-2.5 relative">
+        <div className="flex flex-col w-full lg:w-[330px] items-start gap-2.5 relative">
           <img
-            className="relative w-[152px] h-[42px] object-cover"
+            className="relative w-[120px] sm:w-[140px] lg:w-[152px] h-auto object-cover"
             alt="Logo footer"
             src="/logo-footer-1.png"
           />
 
-          <h2 className="relative self-stretch font-sans font-semibold text-white text-2xl tracking-[0] leading-[normal]">
+          <h2 className="relative self-stretch font-sans font-semibold text-white text-xl sm:text-2xl tracking-[0] leading-[normal]">
             Siêu thị nội thất EGA
           </h2>
 
@@ -63,16 +62,16 @@ export const FooterSection = (): JSX.Element => {
             typeof info === "string" ? (
               <p
                 key={index}
-                className="relative self-stretch font-sans font-normal text-white text-base tracking-[0] leading-[normal]"
+                className="relative self-stretch font-sans font-normal text-white text-sm sm:text-base tracking-[0] leading-[normal]"
               >
                 {info}
               </p>
             ) : (
               <p
                 key={index}
-                className="relative self-stretch font-sans font-normal text-white text-base tracking-[0] leading-[normal]"
+                className="relative self-stretch font-sans font-normal text-white text-sm sm:text-base tracking-[0] leading-[normal]"
               >
-                <span className="font-sans font-normal text-white text-base tracking-[0]">
+                <span className="font-sans font-normal text-white text-sm sm:text-base tracking-[0]">
                   {info.label}
                 </span>
                 {info.isLink ? (
@@ -87,12 +86,15 @@ export const FooterSection = (): JSX.Element => {
           )}
         </div>
 
-        {/* Middle and right columns */}
-        <div className="flex flex-col items-center justify-center gap-[50px] relative flex-1 grow">
-          <div className="flex items-start justify-between relative self-stretch w-full flex-[0_0_auto]">
+        {/* Middle and right columns container */}
+        <div className="flex flex-col items-center justify-center gap-8 lg:gap-[50px] relative flex-1 w-full">
+          
+          {/* Links section - responsive grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-0 lg:justify-between relative w-full">
+            
             {/* Customer support column */}
-            <div className="w-[325px] flex flex-col items-start gap-2.5 relative">
-              <h3 className="relative self-stretch mt-[-1.00px] font-sans font-semibold text-white text-xl tracking-[0] leading-[normal]">
+            <div className="flex flex-col items-start gap-2.5 relative">
+              <h3 className="relative mt-[-1.00px] font-sans font-semibold text-white text-lg sm:text-xl tracking-[0] leading-[normal]">
                 HỖ TRỢ KHÁCH HÀNG
               </h3>
 
@@ -100,7 +102,7 @@ export const FooterSection = (): JSX.Element => {
                 <a
                   key={index}
                   href="#"
-                  className="relative self-stretch font-sans font-normal text-white text-base tracking-[0] leading-[normal] hover:underline"
+                  className="relative font-sans font-normal text-white text-sm sm:text-base tracking-[0] leading-[normal] hover:underline"
                 >
                   {link}
                 </a>
@@ -108,8 +110,8 @@ export const FooterSection = (): JSX.Element => {
             </div>
 
             {/* Policy column */}
-            <div className="w-[325px] flex flex-col items-start gap-2.5 relative">
-              <h3 className="relative self-stretch mt-[-1.00px] font-sans font-semibold text-white text-xl tracking-[0] leading-[normal]">
+            <div className="flex flex-col items-start gap-2.5 relative">
+              <h3 className="relative mt-[-1.00px] font-sans font-semibold text-white text-lg sm:text-xl tracking-[0] leading-[normal]">
                 CHÍNH SÁCH
               </h3>
 
@@ -117,7 +119,7 @@ export const FooterSection = (): JSX.Element => {
                 <a
                   key={index}
                   href="#"
-                  className="relative self-stretch font-sans font-normal text-white text-base tracking-[0] leading-[normal] hover:underline"
+                  className="relative font-sans font-normal text-white text-sm sm:text-base tracking-[0] leading-[normal] hover:underline"
                 >
                   {link}
                 </a>
@@ -125,13 +127,15 @@ export const FooterSection = (): JSX.Element => {
             </div>
 
             {/* Newsletter and social media column */}
-            <div className="flex flex-col w-[325px] items-start gap-[39px] relative">
-              <div className="flex flex-col items-start gap-3 relative self-stretch w-full flex-[0_0_auto]">
-                <h3 className="relative self-stretch mt-[-1.00px] font-sans font-semibold text-white text-xl tracking-[0] leading-[normal]">
+            <div className="flex flex-col items-start gap-6 sm:gap-8 lg:gap-[39px] relative sm:col-span-2 lg:col-span-1">
+              
+              {/* Newsletter section */}
+              <div className="flex flex-col items-start gap-3 relative w-full">
+                <h3 className="relative mt-[-1.00px] font-sans font-semibold text-white text-lg sm:text-xl tracking-[0] leading-[normal]">
                   ĐĂNG KÝ NHẬN TIN
                 </h3>
 
-                <p className="relative self-stretch font-sans font-normal text-white text-base tracking-[0] leading-[normal]">
+                <p className="relative font-sans font-normal text-white text-sm sm:text-base tracking-[0] leading-[normal]">
                   Bạn muốn nhận khuyến mãi đặc biệt? Đăng ký ngay.
                 </p>
 
@@ -148,24 +152,24 @@ export const FooterSection = (): JSX.Element => {
               </div>
 
               {/* Social media icons */}
-              <div className="flex w-[239px] items-center justify-between gap-[59px_94px] relative flex-[0_0_auto]">
+              {/* <div className="flex items-center justify-start gap-4 sm:gap-6 lg:gap-4 relative w-full">
                 {socialMediaIcons.map((icon, index) => (
-                  <a key={index} href="#" aria-label={icon.name}>
+                  <a key={index} href="#" aria-label={icon.name} className="flex-shrink-0">
                     <img
-                      className="relative w-9 h-9 object-cover"
+                      className="relative w-8 h-8 sm:w-9 sm:h-9 object-cover hover:opacity-80 transition-opacity"
                       alt={icon.name}
                       src={icon.src}
                     />
                   </a>
                 ))}
-              </div>
+              </div> */}
             </div>
           </div>
 
           {/* Trust badge */}
-          <div className="inline-flex items-center gap-2.5 relative flex-[0_0_auto]">
+          <div className="inline-flex items-center justify-center gap-2.5 relative flex-[0_0_auto] w-full">
             <img
-              className="relative w-[301px] h-9 object-cover"
+              className="relative w-full max-w-[301px] h-auto object-cover"
               alt="Footer trustbadge"
               src="/footer-trustbadge-1.png"
             />

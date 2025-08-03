@@ -78,7 +78,7 @@ export const ProductDetailSection = (): JSX.Element => {
     <section className="max-w-screen-2xl w-full mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-2 gap-8">
       {/* LEFT: THUMBNAILS + MAIN IMAGE */}
       <div className="flex gap-6">
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 h-[300px] overflow-y-auto md:h-full">
           {allImages.map((thumbObj, index) => (
             <Image
               key={index}
@@ -100,7 +100,7 @@ export const ProductDetailSection = (): JSX.Element => {
           ))}
         </div>
 
-        <div className="flex-1 flex items-start justify-center">
+        <div className="flex-1 flex items-center md:items-start justify-center">
           <Image
             src={mainImage}
             alt={product.name}

@@ -160,7 +160,7 @@ export const CartSection = (): JSX.Element => {
   };
 
   return (
-    <section className="max-w-screen-2xl w-full mx-auto px-4 py-8">
+    <section className="max-w-screen-2xl w-full mx-auto px-4">
     <h1 className="text-2xl font-bold mb-6">Giỏ hàng ({totalItems} sản phẩm)</h1>
     
     {cartItems.length === 0 ? (
@@ -175,235 +175,222 @@ export const CartSection = (): JSX.Element => {
         </Button>
         </div>
     ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full">
         
-        {/* LEFT: CART ITEMS */}
-        <div className="lg:col-span-2">
-            <div className="bg-white border rounded-lg">
-            <div className="p-4 border-b">
-                <h2 className="text-lg font-semibold">Sản phẩm trong giỏ</h2>
-            </div>
-            
-            <div className="divide-y">
-                {cartItems.map((item) => (
-                <div key={item.id} className="p-4 hover:bg-gray-50 transition-colors">
-                    <div className="flex gap-4">
-                    <img 
-                        src={item.image} 
-                        alt={item.name}
-                        className="w-24 h-24 object-cover rounded-lg flex-shrink-0"
-                    />
-                    
-                    <div className="flex-1">
-                        <h3 className="font-medium text-lg mb-1">{item.name}</h3>
-                        <p className="text-sm text-gray-500 mb-2">SKU: {item.sku}</p>
-                        
-                        <div className="flex items-center gap-2 mb-3">
-                        <div 
-                            className="w-4 h-4 rounded-full border border-gray-300"
-                            style={{ backgroundColor: item.color }}
-                        />
-                        <span className="text-sm text-gray-600">{item.colorName}</span>
-                        </div>
+          {/* LEFT: CART ITEMS */}
+          <div className="lg:col-span-2 col-span-1">
+              <div className="bg-white border rounded-lg">
+              <div className="p-4 border-b">
+                  <h2 className="text-lg font-semibold">Sản phẩm trong giỏ</h2>
+              </div>
+              
+              <div className="divide-y">
+                  {cartItems.map((item) => (
+                  <div key={item.id} className="p-4 hover:bg-gray-50 transition-colors">
+                      <div className="flex gap-4">
+                      <img 
+                          src={item.image} 
+                          alt={item.name}
+                          className="w-24 h-24 object-cover rounded-lg flex-shrink-0"
+                      />
+                      
+                      <div className="flex-1">
+                          <h3 className="font-medium text-base lg:text-lg mb-1">{item.name}</h3>                        
+                          <div className="flex items-center gap-2 mb-3">
+                          <div 
+                              className="w-4 h-4 rounded-full border border-gray-300"
+                              style={{ backgroundColor: item.color }}
+                          />
+                          <span className="text-sm text-gray-600">{item.colorName}</span>
+                          </div>
 
-                        <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                            <div className="flex items-center gap-3">
-                            <span className="text-xl font-semibold text-red-600">
+                          <div className="md:flex items-center justify-between">
+                            {/* gia tien */}
+                            <span className="text-base lg:text-xl font-semibold text-red-600">
                                 {formatVND(item.price)}
                             </span>
-                            {item.originalPrice > item.price && (
-                                <span className="text-gray-400 line-through">
-                                {formatVND(item.originalPrice)}
+                            {/* tang giam xoa */}
+                            <div className="flex items-center gap-4">
+                                {/* Quantity Controls */}
+                                <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => handleDecreaseQuantity(item.id)}
+                                    className="w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-100 transition-colors"
+                                >
+                                    <Minus size={16} />
+                                </button>
+                                
+                                <span className="text-lg font-medium w-12 text-center">
+                                    {item.quantity}
                                 </span>
-                            )}
+                                
+                                <button
+                                    onClick={() => handleIncreaseQuantity(item.id)}
+                                    className="w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-100 transition-colors"
+                                >
+                                    <Plus size={16} />
+                                </button>
+                                </div>
+
+                                {/* Remove Button */}
+                                <button
+                                onClick={() => handleRemoveItem(item.id)}
+                                className="text-gray-400 hover:text-red-500 p-2 transition-colors"
+                                title="Xóa sản phẩm"
+                                >
+                                <Trash2 size={20} />
+                                </button>
                             </div>
-                            <p className="text-sm text-gray-500">
-                            Tổng: {formatVND(item.price * item.quantity)}
-                            </p>
-                        </div>
+                          </div>
+                      </div>
+                      </div>
+                  </div>
+                  ))}
+              </div>
+              </div>
+          </div>
 
-                        <div className="flex items-center gap-4">
-                            {/* Quantity Controls */}
-                            <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => handleDecreaseQuantity(item.id)}
-                                className="w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-100 transition-colors"
-                            >
-                                <Minus size={16} />
-                            </button>
-                            
-                            <span className="text-lg font-medium w-12 text-center">
-                                {item.quantity}
-                            </span>
-                            
-                            <button
-                                onClick={() => handleIncreaseQuantity(item.id)}
-                                className="w-8 h-8 flex items-center justify-center border rounded hover:bg-gray-100 transition-colors"
-                            >
-                                <Plus size={16} />
-                            </button>
-                            </div>
+          {/* RIGHT: ORDER SUMMARY */}
+          <div className="lg:col-span-1 col-span-1">
+              <div className="bg-white border rounded-lg p-6 sticky top-20">
+              <h2 className="text-lg font-semibold mb-4">Thông tin đơn hàng</h2>
+              
+              {/* Coupon Input */}
+              <div className="mb-6">
+                  <label className="block text-sm font-medium mb-2">Mã giảm giá</label>
+                  <div className="flex gap-2 mb-2">
+                  <Input
+                      placeholder="Nhập mã giảm giá"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      className="flex-1"
+                  />
+                  <Button 
+                      onClick={handleApplyCoupon}
+                      variant="outline"
+                      disabled={!couponCode.trim()}
+                  >
+                      Áp dụng
+                  </Button>
+                  </div>
+                  
+                  {/* Applied Coupon */}
+                  {appliedCoupon && (
+                  <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg mb-2">
+                      <div className="flex items-center gap-2">
+                      <Gift size={16} className="text-green-600" />
+                      <span className="text-sm font-medium text-green-700">
+                          {appliedCoupon.code}
+                      </span>
+                      </div>
+                      <button
+                      onClick={handleRemoveCoupon}
+                      className="text-green-600 hover:text-green-800"
+                      >
+                      <Trash2 size={14} />
+                      </button>
+                  </div>
+                  )}
 
-                            {/* Remove Button */}
-                            <button
-                            onClick={() => handleRemoveItem(item.id)}
-                            className="text-gray-400 hover:text-red-500 p-2 transition-colors"
-                            title="Xóa sản phẩm"
-                            >
-                            <Trash2 size={20} />
-                            </button>
-                        </div>
-                        </div>
-                    </div>
-                    </div>
-                </div>
-                ))}
-            </div>
-            </div>
-        </div>
+                  {/* Toggle Vouchers */}
+                  <button
+                  onClick={() => setShowVouchers(!showVouchers)}
+                  className="text-sm text-[#ec720e] hover:underline"
+                  >
+                  {showVouchers ? "Ẩn danh sách voucher" : "Xem voucher có sẵn"}
+                  </button>
+              </div>
 
-        {/* RIGHT: ORDER SUMMARY */}
-        <div className="lg:col-span-1">
-            <div className="bg-white border rounded-lg p-6 sticky top-20">
-            <h2 className="text-lg font-semibold mb-4">Thông tin đơn hàng</h2>
-            
-            {/* Coupon Input */}
-            <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">Mã giảm giá</label>
-                <div className="flex gap-2 mb-2">
-                <Input
-                    placeholder="Nhập mã giảm giá"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    className="flex-1"
-                />
+              {/* Available Vouchers */}
+              {showVouchers && (
+                  <div className="mb-6">
+                  <h3 className="font-medium mb-3">Voucher có sẵn</h3>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {availableVouchers.map((voucher) => {
+                      const isEligible = subtotal >= voucher.minOrder;
+                      const isApplied = appliedCoupon?.code === voucher.code;
+                      
+                      return (
+                          <div
+                          key={voucher.code}
+                          className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                              isEligible && voucher.isAvailable && !isApplied
+                              ? "hover:bg-orange-50 border-orange-200"
+                              : "opacity-50 cursor-not-allowed"
+                          } ${isApplied ? "bg-green-50 border-green-200" : ""}`}
+                          onClick={() => isEligible && voucher.isAvailable && !isApplied && handleApplyVoucher(voucher)}
+                          >
+                          <div className="flex items-center justify-between mb-1">
+                              <Badge variant="outline" className="text-xs">
+                              {voucher.code}
+                              </Badge>
+                              {isApplied && (
+                              <Badge className="bg-green-500 text-xs">Đã áp dụng</Badge>
+                              )}
+                          </div>
+                          <p className="text-sm font-medium">{voucher.title}</p>
+                          <p className="text-xs text-gray-500">
+                              Đơn tối thiểu: {formatVND(voucher.minOrder)}
+                          </p>
+                          {!isEligible && (
+                              <p className="text-xs text-red-500 mt-1">
+                              Cần thêm {formatVND(voucher.minOrder - subtotal)}
+                              </p>
+                          )}
+                          </div>
+                      );
+                      })}
+                  </div>
+                  </div>
+              )}
+
+              {/* Price Summary */}
+              <div className="space-y-3 mb-6">
+                  <div className="flex justify-between">
+                  <span>Tạm tính ({totalItems} sản phẩm)</span>
+                  <span>{formatVND(subtotal)}</span>
+                  </div>
+                  
+                  <div className="flex justify-between">
+                  <span>Phí vận chuyển</span>
+                  <span className={shippingFee === 0 ? "text-green-600" : ""}>
+                      {shippingFee === 0 ? "Miễn phí" : formatVND(shippingFee)}
+                  </span>
+                  </div>
+
+                  {discountAmount > 0 && (
+                  <div className="flex justify-between text-green-600">
+                      <span>Giảm giá</span>
+                      <span>-{formatVND(discountAmount)}</span>
+                  </div>
+                  )}
+
+                  <hr />
+                  
+                  <div className="flex justify-between text-lg font-semibold">
+                  <span>Tổng cộng</span>
+                  <span className="text-red-600">{formatVND(finalTotal)}</span>
+                  </div>
+              </div>
+
+              {/* Checkout Button */}
+              <Link href="/checkout" passHref>
                 <Button 
-                    onClick={handleApplyCoupon}
-                    variant="outline"
-                    disabled={!couponCode.trim()}
+                  className="w-full bg-[#ec720e] hover:bg-orange-700 text-white py-3 text-lg font-medium"
+                  size="lg"
                 >
-                    Áp dụng
+                  Tiến hành đặt hàng
                 </Button>
-                </div>
-                
-                {/* Applied Coupon */}
-                {appliedCoupon && (
-                <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg mb-2">
-                    <div className="flex items-center gap-2">
-                    <Gift size={16} className="text-green-600" />
-                    <span className="text-sm font-medium text-green-700">
-                        {appliedCoupon.code}
-                    </span>
-                    </div>
-                    <button
-                    onClick={handleRemoveCoupon}
-                    className="text-green-600 hover:text-green-800"
-                    >
-                    <Trash2 size={14} />
-                    </button>
-                </div>
-                )}
+              </Link>
 
-                {/* Toggle Vouchers */}
-                <button
-                onClick={() => setShowVouchers(!showVouchers)}
-                className="text-sm text-[#ec720e] hover:underline"
-                >
-                {showVouchers ? "Ẩn danh sách voucher" : "Xem voucher có sẵn"}
-                </button>
-            </div>
-
-            {/* Available Vouchers */}
-            {showVouchers && (
-                <div className="mb-6">
-                <h3 className="font-medium mb-3">Voucher có sẵn</h3>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {availableVouchers.map((voucher) => {
-                    const isEligible = subtotal >= voucher.minOrder;
-                    const isApplied = appliedCoupon?.code === voucher.code;
-                    
-                    return (
-                        <div
-                        key={voucher.code}
-                        className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                            isEligible && voucher.isAvailable && !isApplied
-                            ? "hover:bg-orange-50 border-orange-200"
-                            : "opacity-50 cursor-not-allowed"
-                        } ${isApplied ? "bg-green-50 border-green-200" : ""}`}
-                        onClick={() => isEligible && voucher.isAvailable && !isApplied && handleApplyVoucher(voucher)}
-                        >
-                        <div className="flex items-center justify-between mb-1">
-                            <Badge variant="outline" className="text-xs">
-                            {voucher.code}
-                            </Badge>
-                            {isApplied && (
-                            <Badge className="bg-green-500 text-xs">Đã áp dụng</Badge>
-                            )}
-                        </div>
-                        <p className="text-sm font-medium">{voucher.title}</p>
-                        <p className="text-xs text-gray-500">
-                            Đơn tối thiểu: {formatVND(voucher.minOrder)}
-                        </p>
-                        {!isEligible && (
-                            <p className="text-xs text-red-500 mt-1">
-                            Cần thêm {formatVND(voucher.minOrder - subtotal)}
-                            </p>
-                        )}
-                        </div>
-                    );
-                    })}
-                </div>
-                </div>
-            )}
-
-            {/* Price Summary */}
-            <div className="space-y-3 mb-6">
-                <div className="flex justify-between">
-                <span>Tạm tính ({totalItems} sản phẩm)</span>
-                <span>{formatVND(subtotal)}</span>
-                </div>
-                
-                <div className="flex justify-between">
-                <span>Phí vận chuyển</span>
-                <span className={shippingFee === 0 ? "text-green-600" : ""}>
-                    {shippingFee === 0 ? "Miễn phí" : formatVND(shippingFee)}
-                </span>
-                </div>
-
-                {discountAmount > 0 && (
-                <div className="flex justify-between text-green-600">
-                    <span>Giảm giá</span>
-                    <span>-{formatVND(discountAmount)}</span>
-                </div>
-                )}
-
-                <hr />
-                
-                <div className="flex justify-between text-lg font-semibold">
-                <span>Tổng cộng</span>
-                <span className="text-red-600">{formatVND(finalTotal)}</span>
-                </div>
-            </div>
-
-            {/* Checkout Button */}
-            <Link href="/checkout" passHref>
-              <Button 
-                className="w-full bg-[#ec720e] hover:bg-orange-700 text-white py-3 text-lg font-medium"
-                size="lg"
-              >
-                Tiến hành đặt hàng
-              </Button>
-            </Link>
-
-            {/* Additional Info */}
-            <div className="mt-4 text-xs text-gray-500 space-y-1">
-                <p>• Miễn phí vận chuyển với đơn từ 500.000đ</p>
-                <p>• Đổi trả trong 30 ngày</p>
-                <p>• Bảo hành chính hãng</p>
-            </div>
-            </div>
-        </div>
+              {/* Additional Info */}
+              <div className="mt-4 text-xs text-gray-500 space-y-1">
+                  <p>• Miễn phí vận chuyển với đơn từ 500.000đ</p>
+                  <p>• Đổi trả trong 30 ngày</p>
+                  <p>• Bảo hành chính hãng</p>
+              </div>
+              </div>
+          </div>
         </div>
     )}
     </section>

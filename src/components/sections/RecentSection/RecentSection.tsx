@@ -1,7 +1,4 @@
-//ProductListSection.tsx
-
 import React from "react";
-
 import { ItemProductComponent } from "@/components/ItemProductComponent";
 
 export const RecentSection = (): JSX.Element => {
@@ -135,26 +132,50 @@ export const RecentSection = (): JSX.Element => {
   ];
 
   return (
-    <section className="flex flex-col w-full max-w-screen-2xl mx-auto items-start pb-[70px] px-4">
-
+    <section className="flex flex-col w-full max-w-screen-2xl mx-auto items-start pb-12 sm:pb-16 lg:pb-[70px] px-2 sm:px-4">
       {/* RecentSection */}
-      <div className="flex flex-col items-start py-5 w-full">
-        <div className="flex items-center gap-2.5 py-3.5 w-full">
-          <h2 className="  font-medium text-black text-2xl">
-            Tất cả sản phẩm
+      <div className="flex flex-col items-start py-3 sm:py-4 lg:py-5 w-full">
+        <div className="flex items-center gap-2 sm:gap-2.5 py-2 sm:py-3 lg:py-3.5 w-full">
+          <h2 className="font-medium text-black text-lg sm:text-xl lg:text-2xl">
+            Sản phẩm đã xem gần đây
           </h2>
         </div>
 
-        <div className="w-full overflow-x-auto whitespace-nowrap pb-4">
-          {mainProducts.map((product) => (
-            <ItemProductComponent
-              key={product.id}
-              product={product}
-              className="!max-w-80  inline-block mr-10"
-            />
-          ))}
-        </div>
+        {/* Mobile & Tablet: Grid layout, Desktop: Horizontal scroll */}
+        <div className="w-full">
+          {/* Grid layout for mobile and tablet */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:hidden gap-3 sm:gap-4">
+            {mainProducts.slice(0, 6).map((product) => (
+              <ItemProductComponent
+                key={product.id}
+                product={product}
+                className="w-full"
+              />
+            ))}
+          </div>
 
+          {/* Horizontal scroll for desktop - constrained width */}
+          <div className="hidden lg:block w-full">
+            <div className="overflow-x-auto -mx-2 px-2">
+              <div className="flex gap-6 pb-4 w-max">
+                {mainProducts.map((product) => (
+                  <ItemProductComponent
+                    key={product.id}
+                    product={product}
+                    className="flex-shrink-0 w-72"
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Show more button for mobile/tablet */}
+          <div className="lg:hidden flex justify-center mt-6">
+            <button className="px-6 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+              Xem thêm sản phẩm
+            </button>
+          </div>
+        </div>
       </div>
     </section>
   );

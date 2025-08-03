@@ -2,11 +2,11 @@ import React from "react";
 import { HeaderNavbarSection } from "@/components/sections/HeaderNavbarSection";
 import { FooterSection } from "@/components/sections/FooterSection";
 import { ProductListHomeSection } from "@/components/sections/ProductListHomeSection/ProductListHomeSection";
-import { BreadcrumbSection } from "@/components/sections/BreadcrumbSection/BreadcrumbSection";
 import { BannerSection } from "@/components/sections/BannerSection/BannerSection";
 import { CouponsSection } from "@/components/sections/CouponsSection/CouponsSection";
 import { RecentSection } from "@/components/sections/RecentSection/RecentSection";
 import { ProductCategorySection } from "@/components/sections/ProductCategorySection/ProductCategorySection";
+import { BannerSliderSection } from "@/components/sections/BannerSliderSection/BannerSliderSection";
 
 export const FrameScreen = (): JSX.Element => {
   return (
@@ -14,13 +14,12 @@ export const FrameScreen = (): JSX.Element => {
       <HeaderNavbarSection />
 
       {/* main */}
-      <main>
-        <BreadcrumbSection />
-        <BannerSection />
-        <CouponsSection />
+      <main className="w-full">
+        <BannerSliderSection />
+        {/* <CouponsSection /> */}
         <ProductCategorySection />
         <ProductListHomeSection />
-        <RecentSection />
+        {/* <RecentSection /> */}
       </main>
       <FooterSection />
     </div>

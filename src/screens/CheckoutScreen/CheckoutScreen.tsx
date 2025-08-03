@@ -15,7 +15,7 @@ export const CheckoutScreen = (): JSX.Element => {
         <BreadcrumbSection />
         <CheckoutSection/>
 
-        <RecentSection />
+        {/* <RecentSection /> */}
       </main>
       <FooterSection />
     </div>

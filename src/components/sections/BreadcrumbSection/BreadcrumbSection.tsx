@@ -9,7 +9,7 @@ import {
 
 export const BreadcrumbSection = (): JSX.Element => {
   return (
-    <section className="flex flex-col w-full max-w-screen-2xl mx-auto items-start">
+    <section className="flex flex-col w-full max-w-screen-2xl mx-auto items-start pt-2 px-4">
       {/* Breadcrumb */}
       <Breadcrumb className="flex items-center gap-2.5 py-1 w-full bg-white">
         <BreadcrumbItem>

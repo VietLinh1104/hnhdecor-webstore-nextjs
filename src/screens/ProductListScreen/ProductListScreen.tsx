@@ -16,9 +16,9 @@ export const ProductListScreen = (): JSX.Element => {
       <main>
         <BreadcrumbSection />
         <BannerSection />
-        <CouponsSection />
+        {/* <CouponsSection /> */}
         <ProductListSection />
-        <RecentSection />
+        {/* <RecentSection /> */}
       </main>
       <FooterSection />
     </div>

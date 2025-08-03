@@ -78,6 +78,9 @@
     --radius: 0.5rem;
   }
 }
+main {
+  @apply w-full;
+}
 
 @layer base {
   * {

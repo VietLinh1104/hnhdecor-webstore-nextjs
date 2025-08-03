@@ -3,8 +3,9 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AsideFilterSection } from "@/components/sections/AsideFilterSection/AsideFilterSection";
 import { ItemProductComponent } from "@/components/ItemProductComponent";
+import { AsideFilterSection } from "@/components/sections/AsideFilterSection/AsideFilterSection";
+
 
 export const ProductListSection = (): JSX.Element => {
   // Product data for main grid
@@ -137,53 +138,57 @@ export const ProductListSection = (): JSX.Element => {
     },
   ];
 
-
   return (
-    <section className="flex flex-col w-full max-w-screen-2xl mx-auto items-start pb-[70px] px-4">
-
-
+    <section className="flex flex-col w-full max-w-screen-2xl mx-auto items-start pb-12 px-4 sm:pb-16 lg:pb-[70px] sm:px-4">
       {/* Main Content */}
-      <div className="flex flex-col gap-[15px] py-5 w-full">
+      <div className="flex flex-col gap-3 sm:gap-4 lg:gap-[15px] py-3 sm:py-4 lg:py-5 w-full">
         {/* Title and Sort */}
-        <div className="flex items-center justify-between py-3.5 w-full">
-          <h2 className=" font-medium text-black text-2xl">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 py-2 sm:py-3 lg:py-3.5 w-full">
+          <h2 className="font-medium text-black text-xl sm:text-xl lg:text-2xl">
             Tất cả sản phẩm
           </h2>
-          <div className="flex items-center gap-5">
-            <span className="  font-normal text-black text-base">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-5">
+            <span className="font-normal text-black text-sm sm:text-base">
               Sắp xếp:
             </span>
             <Button
               variant="outline"
-              className="px-5 py-[5px] rounded-md border-[#ec720e] text-black"
+              className="px-3 sm:px-5 py-2 sm:py-[5px] rounded-md border-[#ec720e] text-black text-sm sm:text-base w-fit"
             >
               Tên A → Z
             </Button>
           </div>
         </div>
 
-        {/* Filters and Products */}
-        <div className="flex items-start justify-between w-full">
+        {/* Products Section */}
+        <div className="flex flex-col xl:flex-row items-start xl:justify-between gap-4 xl:gap-6 w-full">
+          <div className="hidden xl:block xl:flex-shrink-0">
+            <AsideFilterSection />
+          </div>
 
-          {/* Filters */}
-          <AsideFilterSection />
-
-          {/* Products */}
-          <div className="flex flex-col items-start gap-2.5 p-2.5 flex-1">
-            <Badge className="px-[11px] py-[3px] bg-[#ff50502b] text-[#ea3838] text-xs rounded-md border border-solid border-[#ec720e]">
+          <div className="flex flex-col items-start gap-4 w-full xl:flex-1">
+            {/* Category Badge */}
+            <Badge className="px-2 sm:px-3 lg:px-[11px] py-1 sm:py-[3px] bg-[#ff50502b] text-[#ea3838] text-xs rounded-md border border-solid border-[#ec720e]">
               Ghế Sofa
             </Badge>
 
-            <div className="grid grid-cols-3 gap-[20px] gap-y-11 w-full">
+            {/* Products Grid - Responsive */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3 gap-3 sm:gap-5 lg:gap-5 xl:gap-6 w-full">
               {mainProducts.map((product) => (
-                <ItemProductComponent key={product.id} product={product} />
+                <ItemProductComponent 
+                  key={product.id} 
+                  product={product}
+                  className="w-full"
+                />
               ))}
             </div>
+
           </div>
+
+
 
         </div>
       </div>
-
     </section>
   );
 };
