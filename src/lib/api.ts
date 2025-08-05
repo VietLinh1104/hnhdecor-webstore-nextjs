@@ -4,6 +4,7 @@ import { apiClient } from "@/lib/fetcher";
 // GET /store/products
 import { Product, ProductListResponse } from "@/types/product";
 import { ProductCategoryResponse, ProductCategory } from "@/types/category";
+import { GetProductResponse } from "@/types/productDetail";
 
 
 export async function getAllProducts(): Promise<Product[]> {
@@ -13,7 +14,7 @@ export async function getAllProducts(): Promise<Product[]> {
 
 // GET /store/products/:id
 export async function getProductById(id: string) {
-  const res = await apiClient.get(`/products/${id}`);
+  const res = await apiClient.get<GetProductResponse>(`/products/${id}?fields=*variants.calculated_price&region_id=reg_01K1VCRS7MVGP61R0Z1GD0V8FQ`);
   return res.data.product;
 }
 

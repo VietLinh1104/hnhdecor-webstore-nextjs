@@ -10,3 +10,4 @@ export default function Home() {
     
   return <ProductDetailScreen documentId={documentId}/>
 }
+

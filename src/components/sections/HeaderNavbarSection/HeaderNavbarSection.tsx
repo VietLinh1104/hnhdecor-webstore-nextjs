@@ -17,9 +17,9 @@ import { MobileMenuSection } from "@/components/sections/MobileMenuSection/Mobil
 // ✅ Fix cứng dữ liệu menu 
 const menuItem: MenuItem[] = [ 
   { label: "Trang chủ", href: "/" }, 
-  { label: "Sản phẩm", href: "/product-detail" }, 
-  { label: "Giới thiệu", href: "/about" }, 
-  { label: "Liên hệ", href: "/contact" }, 
+  { label: "Sản phẩm", href: "/product-list" }, 
+  { label: "Giới thiệu", href: "/" }, 
+  { label: "Liên hệ", href: "/" }, 
 ]; 
  
 const icons = [ 

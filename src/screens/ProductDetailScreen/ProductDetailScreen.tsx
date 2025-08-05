@@ -4,6 +4,8 @@ import { FooterSection } from "@/components/sections/FooterSection";
 import { BreadcrumbSection } from "@/components/sections/BreadcrumbSection/BreadcrumbSection";
 import { RecentSection } from "@/components/sections/RecentSection/RecentSection";
 import { ProductDetailSection } from "@/components/sections/ProductDetailSection/ProductDetailSection";
+import { ProductDescriptionSection } from "@/components/sections/ProductDescriptionSection/ProductDescriptionSection";
+
 
 type Props = {
   documentId: string;
@@ -18,7 +20,8 @@ export const ProductDetailScreen = ({ documentId }: Props): JSX.Element => {
       {/* documentId={documentId} */}
       <main>
         <BreadcrumbSection />
-        <ProductDetailSection />
+        <ProductDetailSection productId={documentId}/>
+       
         {/* <RecentSection /> */}
       </main>
       <FooterSection />
