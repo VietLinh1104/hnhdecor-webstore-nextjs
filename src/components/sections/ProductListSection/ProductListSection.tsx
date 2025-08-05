@@ -1,194 +1,165 @@
-//ProductListSection.tsx
+"use client"
 
-import React from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ItemProductComponent } from "@/components/ItemProductComponent";
-import { AsideFilterSection } from "@/components/sections/AsideFilterSection/AsideFilterSection";
+import React, { useEffect, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { ItemProductComponent } from "@/components/ItemProductComponent"
+import { AsideFilterSection } from "@/components/sections/AsideFilterSection/AsideFilterSection"
+import { ChevronDown } from "lucide-react"
 
+import { Product } from "@/types/product"
+import { getAllProducts } from "@/lib/api"
+
+type SortOption = "name-asc" | "name-desc" | "price-asc" | "price-desc" | "date-asc" | "date-desc"
 
 export const ProductListSection = (): JSX.Element => {
-  // Product data for main grid
-  const mainProducts = [
-    {
-      id: 1,
-      category: "Ghế Sofa",
-      name: "Sofa Băng Phòng Khách Truyền Thống QP115",
-      price: "33.750.000₫",
-      originalPrice: "62.400.000₫",
-      discount: "-50%",
-      image: "/melaniecanape3placesgirsclaire-4-13.png",
-      thumbnails: [
-        "/melaniecanape3placesgirsclaire-4-13.png",
-        "/melaniecanape3placesgirsclaire-4-13.png",
-        "/melaniecanape3placesgirsclaire-4-13.png",
-      ],
-    },
-    {
-      id: 2,
-      category: "Ghế Sofa",
-      name: "Sofa Băng Phòng Khách Truyền Thống QP113",
-      price: "33.750.000₫",
-      originalPrice: "62.400.000₫",
-      discount: "-50%",
-      image: "/melaniecanape3placesgirsclaire-1-10.png",
-      thumbnails: [
-        "/melaniecanape3placesgirsclaire-4-13.png",
-        "/melaniecanape3placesgirsclaire-4-13.png",
-        "/melaniecanape3placesgirsclaire-4-13.png",
-      ],
-    },
-    {
-      id: 3,
-      category: "Ghế Sofa",
-      name: "Đèn bàn thuỷ tinh",
-      price: "33.750.000₫",
-      originalPrice: "62.400.000₫",
-      discount: "-50%",
-      image: "/melaniecanape3placesgirsclaire-1-13.png",
-      thumbnails: [
-        "/melaniecanape3placesgirsclaire-4-13.png",
-        "/melaniecanape3placesgirsclaire-4-13.png",
-        "/melaniecanape3placesgirsclaire-4-13.png",
-      ],
-    },
-    {
-      id: 4,
-      category: "Ghế Sofa",
-      name: "Mochi Pouffe / Nhiều màu",
-      price: "33.750.000₫",
-      originalPrice: "62.400.000₫",
-      discount: "-50%",
-      image: "/melaniecanape3placesgirsclaire-1-3.png",
-      thumbnails: [
-        "/melaniecanape3placesgirsclaire-4-13.png",
-        "/melaniecanape3placesgirsclaire-4-13.png",
-        "/melaniecanape3placesgirsclaire-4-13.png",
-      ],
-    },
-    {
-      id: 5,
-      category: "Ghế Sofa",
-      name: "Đèn tường Wally",
-      price: "33.750.000₫",
-      originalPrice: "62.400.000₫",
-      discount: "-50%",
-      image: "/melaniecanape3placesgirsclaire-1-12.png",
-      thumbnails: [
-        "/melaniecanape3placesgirsclaire-4-13.png",
-        "/melaniecanape3placesgirsclaire-4-13.png",
-        "/melaniecanape3placesgirsclaire-4-13.png",
-      ],
-    },
-    {
-      id: 6,
-      category: "Ghế Sofa",
-      name: "Thương hiệu",
-      price: "33.750.000₫",
-      originalPrice: "62.400.000₫",
-      discount: "-50%",
-      image: "/melaniecanape3placesgirsclaire-1-5.png",
-      thumbnails: [
-        "/melaniecanape3placesgirsclaire-4-13.png",
-        "/melaniecanape3placesgirsclaire-4-13.png",
-        "/melaniecanape3placesgirsclaire-4-13.png",
-      ],
-    },
-    {
-      id: 7,
-      category: "Ghế Sofa",
-      name: "Sofa Băng Phòng Khách Truyền Thống QP115",
-      price: "33.750.000₫",
-      originalPrice: "62.400.000₫",
-      discount: "-50%",
-      image: "/melaniecanape3placesgirsclaire-4-13.png",
-      thumbnails: [
-        "/melaniecanape3placesgirsclaire-4-13.png",
-        "/melaniecanape3placesgirsclaire-4-13.png",
-        "/melaniecanape3placesgirsclaire-4-13.png",
-      ],
-    },
-    {
-      id: 8,
-      category: "Ghế Sofa",
-      name: "Đèn bàn thuỷ tinh",
-      price: "33.750.000₫",
-      originalPrice: "62.400.000₫",
-      discount: "-50%",
-      image: "/melaniecanape3placesgirsclaire-1-13.png",
-      thumbnails: [
-        "/melaniecanape3placesgirsclaire-4-13.png",
-        "/melaniecanape3placesgirsclaire-4-13.png",
-        "/melaniecanape3placesgirsclaire-4-13.png",
-      ],
-    },
-    {
-      id: 9,
-      category: "Ghế Sofa",
-      name: "Sofa Băng Phòng Khách Truyền Thống QP113",
-      price: "33.750.000₫",
-      originalPrice: "62.400.000₫",
-      discount: "-50%",
-      image: "/melaniecanape3placesgirsclaire-1-10.png",
-      thumbnails: [
-        "/melaniecanape3placesgirsclaire-4-13.png",
-        "/melaniecanape3placesgirsclaire-4-13.png",
-        "/melaniecanape3placesgirsclaire-4-13.png",
-      ],
-    },
-  ];
+  const [products, setProducts] = useState<Product[]>([])
+  const [sortedProducts, setSortedProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
+  const [sortBy, setSortBy] = useState<SortOption>("name-asc")
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
+
+  const sortOptions = [
+    { value: "name-asc", label: "Tên A → Z" },
+    { value: "name-desc", label: "Tên Z → A" },
+    { value: "price-asc", label: "Giá thấp → cao" },
+    { value: "price-desc", label: "Giá cao → thấp" },
+    { value: "date-asc", label: "Cũ nhất" },
+    { value: "date-desc", label: "Mới nhất" },
+  ]
+
+  const getProductPrice = (product: Product): number => {
+    const variant = product.variants?.find(v => v.calculated_price) || product.variants?.[0]
+    return variant?.calculated_price?.calculated_amount ?? 0
+  }
+
+  const sortProducts = (products: Product[], sortType: SortOption): Product[] => {
+    const sorted = [...products]
+    
+    switch (sortType) {
+      case "name-asc":
+        return sorted.sort((a, b) => a.title.localeCompare(b.title, 'vi'))
+      case "name-desc":
+        return sorted.sort((a, b) => b.title.localeCompare(a.title, 'vi'))
+      case "price-asc":
+        return sorted.sort((a, b) => getProductPrice(a) - getProductPrice(b))
+      case "price-desc":
+        return sorted.sort((a, b) => getProductPrice(b) - getProductPrice(a))
+      case "date-asc":
+        return sorted.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+      case "date-desc":
+        return sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      default:
+        return sorted
+    }
+  }
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await getAllProducts()
+        setProducts(data)
+      } catch (err: any) {
+        console.error("Error fetching products:", err)
+        setError("Không thể tải sản phẩm. Vui lòng thử lại sau.")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProducts()
+  }, [])
+
+  useEffect(() => {
+    setSortedProducts(sortProducts(products, sortBy))
+  }, [products, sortBy])
+
+  const handleSortChange = (sortType: SortOption) => {
+    setSortBy(sortType)
+    setIsDropdownOpen(false)
+  }
+
+  const currentSortLabel = sortOptions.find(option => option.value === sortBy)?.label || "Tên A → Z"
 
   return (
     <section className="flex flex-col w-full max-w-screen-2xl mx-auto items-start pb-12 px-4 sm:pb-16 lg:pb-[70px] sm:px-4">
-      {/* Main Content */}
-      <div className="flex flex-col gap-3 sm:gap-4 lg:gap-[15px] py-3 sm:py-4 lg:py-5 w-full">
-        {/* Title and Sort */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 py-2 sm:py-3 lg:py-3.5 w-full">
-          <h2 className="font-medium text-black text-xl sm:text-xl lg:text-2xl">
+      <div className="flex flex-col gap-4 py-4 w-full">
+        {/* Title + Sort */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 w-full">
+          <h2 className="font-medium text-black text-xl lg:text-2xl">
             Tất cả sản phẩm
           </h2>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-5">
-            <span className="font-normal text-black text-sm sm:text-base">
-              Sắp xếp:
-            </span>
-            <Button
-              variant="outline"
-              className="px-3 sm:px-5 py-2 sm:py-[5px] rounded-md border-[#ec720e] text-black text-sm sm:text-base w-fit"
-            >
-              Tên A → Z
-            </Button>
+          <div className="flex items-center gap-2">
+            <span className="text-sm sm:text-base text-black">Sắp xếp:</span>
+            <div className="relative">
+              <Button
+                variant="outline"
+                className="px-3 py-2 rounded-md border-[#ec720e] text-black text-sm flex items-center gap-2 min-w-[140px] justify-between"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              >
+                {currentSortLabel}
+                <ChevronDown className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              </Button>
+              
+              {isDropdownOpen && (
+                <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                  {sortOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 first:rounded-t-md last:rounded-b-md ${
+                        sortBy === option.value ? 'bg-orange-50 text-[#ec720e]' : 'text-black'
+                      }`}
+                      onClick={() => handleSortChange(option.value as SortOption)}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Products Section */}
-        <div className="flex flex-col xl:flex-row items-start xl:justify-between gap-4 xl:gap-6 w-full">
-          <div className="hidden xl:block xl:flex-shrink-0">
+        <div className="flex flex-col xl:flex-row gap-6 w-full">
+          {/* Sidebar */}
+          <aside className="hidden xl:block xl:w-1/4">
             <AsideFilterSection />
+          </aside>
+
+          {/* Product Grid */}
+          <div className="flex flex-col gap-4 flex-1 w-full">
+            {loading && <p className="text-gray-500">Đang tải sản phẩm...</p>}
+
+            {error && (
+              <p className="text-red-500 font-medium text-sm">{error}</p>
+            )}
+
+            {!loading && !error && sortedProducts.length === 0 && (
+              <p className="text-gray-600">Không có sản phẩm nào.</p>
+            )}
+
+            {!loading && !error && sortedProducts.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {sortedProducts.map((product) => (
+                  <ItemProductComponent
+                    key={product.id}
+                    product={product}
+                    className="w-full"
+                  />
+                ))}
+              </div>
+            )}
           </div>
-
-          <div className="flex flex-col items-start gap-4 w-full xl:flex-1">
-            {/* Category Badge */}
-            <Badge className="px-2 sm:px-3 lg:px-[11px] py-1 sm:py-[3px] bg-[#ff50502b] text-[#ea3838] text-xs rounded-md border border-solid border-[#ec720e]">
-              Ghế Sofa
-            </Badge>
-
-            {/* Products Grid - Responsive */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3 gap-3 sm:gap-5 lg:gap-5 xl:gap-6 w-full">
-              {mainProducts.map((product) => (
-                <ItemProductComponent 
-                  key={product.id} 
-                  product={product}
-                  className="w-full"
-                />
-              ))}
-            </div>
-
-          </div>
-
-
-
         </div>
       </div>
+      
+      {/* Click outside to close dropdown */}
+      {isDropdownOpen && (
+        <div 
+          className="fixed inset-0 z-0" 
+          onClick={() => setIsDropdownOpen(false)}
+        />
+      )}
     </section>
-  );
-};
+  )
+}

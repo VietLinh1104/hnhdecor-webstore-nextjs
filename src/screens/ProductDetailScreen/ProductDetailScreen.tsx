@@ -5,12 +5,17 @@ import { BreadcrumbSection } from "@/components/sections/BreadcrumbSection/Bread
 import { RecentSection } from "@/components/sections/RecentSection/RecentSection";
 import { ProductDetailSection } from "@/components/sections/ProductDetailSection/ProductDetailSection";
 
-export const ProductDetailScreen = (): JSX.Element => {
+type Props = {
+  documentId: string;
+};
+
+export const ProductDetailScreen = ({ documentId }: Props): JSX.Element => {
   return (
     <div className="flex flex-col items-center w-full bg-white">
       <HeaderNavbarSection />
 
       {/* main */}
+      {/* documentId={documentId} */}
       <main>
         <BreadcrumbSection />
         <ProductDetailSection />

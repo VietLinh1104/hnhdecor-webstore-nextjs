@@ -1,13 +1,20 @@
 // src/types/Product.ts
-export interface Product {
+export interface ColorType {
+  color: string;
+  image: string[];
+}
+
+export interface ProductType {
   id: number;
   category: string;
   name: string;
-  price: string;
-  originalPrice: string;
-  discount: string;
-  image: string;
-  thumbnails: string[];
+  brand: string;
+  sku: string;
+  originalPrice: number;
+  discount: number;
+  status: string;
+  colors: ColorType[];
+  codeCoupon: string[];
 }
 
 export interface MenuItem {
@@ -23,11 +30,6 @@ export interface Coupon {
   image: string;
   outdatedImage: string;
 }
-
-export type ColorType = {
-  color: string;
-  image: string[];
-};
 
 export interface CartItem {
   id: number;
