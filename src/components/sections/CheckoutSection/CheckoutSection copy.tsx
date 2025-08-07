@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MapPin, Phone, User, Mail, CreditCard, Truck, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ShippingInfo, CartItem, OrderSummary, LineItem } from "@/types/carts";
+import { OrderSummary, ShippingInfo, CartItem } from "@/types/carts";
+import { LineItem } from "@/types/carts";
 import { useCart } from "@/contexts/CartContext";
 import { updateCartCustomerInfo } from "@/lib/api";
 import { toast } from "react-toastify";
@@ -16,11 +17,10 @@ import { useSearchParams } from "next/navigation";
 export const CheckoutSection = (): JSX.Element => {
   const { cartItems, totalItems, cartId: contextCartId, isLoading, refreshCart } = useCart();
   const searchParams = useSearchParams();
-  const urlCartId = searchParams.get("cartId");
+  
+  // Get cartId from URL params if it exists, otherwise use context cartId
+  const urlCartId = searchParams.get('cartId');
   const cartId = urlCartId || contextCartId;
-
-  const [localCart, setLocalCart] = useState<any | null>(null);
-  const [localCartLoading, setLocalCartLoading] = useState(false);
 
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     fullName: "",
@@ -32,34 +32,21 @@ export const CheckoutSection = (): JSX.Element => {
     province: "",
     note: "",
   });
-
   const [agreeTerms, setAgreeTerms] = useState(false);
-  const [paymentMethod] = useState("COD");
+  const [paymentMethod] = useState("COD"); // Chỉ hỗ trợ COD
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailError, setEmailError] = useState("");
 
-  // Nếu dùng cartId từ URL, load cart
+  // If we have a cartId from URL but no cart items in context, you might want to fetch the cart
   useEffect(() => {
-    if (urlCartId) {
-      setLocalCartLoading(true);
-      sdk.store.cart
-        .retrieve(urlCartId)
-        .then(({ cart }) => setLocalCart(cart))
-        .catch((err) => {
-          console.error("Lỗi lấy cart:", err);
-          toast.error("Không tìm thấy giỏ hàng!");
-        })
-        .finally(() => setLocalCartLoading(false));
+    if (urlCartId && urlCartId !== contextCartId) {
+      // Optional: You might want to fetch cart data here if using URL cartId
+      console.log('Using cartId from URL:', urlCartId);
     }
-  }, [urlCartId]);
+  }, [urlCartId, contextCartId]);
 
-  const effectiveCartItems: LineItem[] = urlCartId
-    ? localCart?.items || []
-    : cartItems;
-
-  const effectiveTotalItems = effectiveCartItems.reduce((sum, i) => sum + i.quantity, 0);
-
-  const mappedCartItems: CartItem[] = effectiveCartItems.map((item: LineItem) => ({
+  // Mapping LineItem sang CartItem
+  const mappedCartItems: CartItem[] = cartItems.map((item: LineItem) => ({
     id: item.id,
     name: item.title,
     image: item.thumbnail || "/placeholder-image.png",
@@ -75,22 +62,30 @@ export const CheckoutSection = (): JSX.Element => {
   const formatVND = (value: number): string =>
     value.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
 
+  // Tính toán giá trị đơn hàng
   const orderSummary: OrderSummary = {
     subtotal: mappedCartItems.reduce((total, item) => total + item.price * item.quantity, 0),
-    shippingFee: mappedCartItems.length > 0 ? 30000 : 0,
-    discount: 50000,
+    shippingFee: mappedCartItems.length > 0 ? 30000 : 0, // Phí ship cố định nếu có sản phẩm
+    discount: 50000, // Mock discount, integrate with cart.promotions later
     total: 0,
   };
   orderSummary.total = orderSummary.subtotal + orderSummary.shippingFee - orderSummary.discount;
 
+  // Email validation function
   const validateEmail = (email: string): boolean => {
-    if (!email) return true;
+    if (!email) return true; // Email is optional
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
+  // Xử lý thay đổi input
   const handleInputChange = (field: keyof ShippingInfo, value: string) => {
-    setShippingInfo((prev) => ({ ...prev, [field]: value }));
+    setShippingInfo((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+
+    // Validate email on change
     if (field === "email") {
       if (value && !validateEmail(value)) {
         setEmailError("Vui lòng nhập địa chỉ email hợp lệ");
@@ -100,6 +95,7 @@ export const CheckoutSection = (): JSX.Element => {
     }
   };
 
+  // Kiểm tra form hợp lệ
   const isFormValid = () => {
     const requiredFields: (keyof ShippingInfo)[] = [
       "fullName",
@@ -108,35 +104,36 @@ export const CheckoutSection = (): JSX.Element => {
       "ward",
       "province",
     ];
-    const requiredFieldsValid = requiredFields.every(
-      (field) => shippingInfo[field].trim() !== ""
-    );
+    
+    const requiredFieldsValid = requiredFields.every((field) => shippingInfo[field].trim() !== "");
     const emailValid = !shippingInfo.email || validateEmail(shippingInfo.email);
-
+    
     return requiredFieldsValid && emailValid && agreeTerms && mappedCartItems.length > 0;
   };
 
+  // Xử lý đặt hàng
   const handlePlaceOrder = async () => {
+    // Validate email before proceeding
     if (shippingInfo.email && !validateEmail(shippingInfo.email)) {
       toast.error("Vui lòng nhập địa chỉ email hợp lệ!");
       return;
     }
 
     if (!isFormValid()) {
-      toast.error("Vui lòng điền đầy đủ thông tin và đồng ý điều khoản!");
+      toast.error("Vui lòng điền đầy đủ thông tin, đồng ý với điều khoản và đảm bảo giỏ hàng không trống!");
       return;
     }
 
     if (!cartId) {
-      toast.error("Không tìm thấy giỏ hàng.");
+      toast.error("Không tìm thấy giỏ hàng. Vui lòng thử lại!");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const [firstName, ...lastNameArr] = shippingInfo.fullName.split(" ");
-      const lastName = lastNameArr.join(" ") || "Unknown";
+      const firstName = shippingInfo.fullName.split(" ").slice(0, -1).join(" ") || "Unknown";
+      const lastName = shippingInfo.fullName.split(" ").slice(-1)[0] || "Unknown";
 
       const address = {
         first_name: firstName,
@@ -148,7 +145,7 @@ export const CheckoutSection = (): JSX.Element => {
         country_code: "vn",
       };
 
-      // Cập nhật thông tin khách hàng
+      // ✅ Cập nhật thông tin khách hàng
       await updateCartCustomerInfo(cartId, {
         email: shippingInfo.email || "guest@example.com",
         shipping_address: address,
@@ -157,27 +154,47 @@ export const CheckoutSection = (): JSX.Element => {
 
       const { cart } = await sdk.store.cart.retrieve(cartId);
 
-      await sdk.store.cart.addShippingMethod(cartId, {
+      sdk.auth.login("user", "emailpass", {
+        email: "linhtx2004@gmail.com",
+        password: "Ltx622004$01",
+      }).then(() => {
+        // Sau khi đăng nhập thành công, các request admin sẽ tự động được xác thực
+        sdk.admin.shippingOption.list().then(({ shipping_options }) => {
+          console.log(shipping_options);
+        });
+      });
+
+      sdk.store.cart.addShippingMethod(cartId, {
         option_id: "so_01K1ZVNQATP2FQQ55EP3ESXJP0",
+      }).then(({ cart }) => {
+        console.log("ship: " + cart);
       });
 
+      // ✅ Hoàn tất đơn hàng bằng SDK
       await sdk.store.payment.initiatePaymentSession(cart, {
-        provider_id: "pp_system_default",
+        provider_id: "pp_system_default", // Manual System Payment Provider
       });
 
-      const result = await sdk.store.cart.complete(cartId);
+      sdk.admin.shippingOption.list().then(({ shipping_options }) => {
+        console.log(shipping_options);
+      });
 
-      if ("order" in result) {
-        localStorage.setItem("orderId", result.order.id);
-        if (!urlCartId) refreshCart();
-        localStorage.removeItem("cart");
-        window.location.href = "/order-success";
-      } else {
-        toast.error(result.error.message || "Lỗi khi hoàn tất đơn hàng!");
-      }
+      sdk.store.cart.complete(cartId).then((data) => {
+        if (data.type === "cart") {
+          alert(data.error.message);
+          // Xử lý lỗi nếu có
+        } else {
+          localStorage.setItem("orderId", data.order.id);
+          console.log("Mã đơn hàng:", data.order.id);
+          // Đơn hàng đã được tạo thành công
+          refreshCart();
+          localStorage.removeItem("cart");
+          window.location.href = "/order-success";
+        }
+      });
     } catch (error) {
       console.error("Lỗi khi đặt hàng:", error);
-      toast.error("Có lỗi xảy ra khi đặt hàng.");
+      toast.error("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!");
     } finally {
       setIsSubmitting(false);
     }
