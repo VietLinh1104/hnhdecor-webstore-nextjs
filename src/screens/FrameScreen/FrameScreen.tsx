@@ -2,9 +2,9 @@ import React from "react";
 import { HeaderNavbarSection } from "@/components/sections/HeaderNavbarSection";
 import { FooterSection } from "@/components/sections/FooterSection";
 import { ProductListHomeSection } from "@/components/sections/ProductListHomeSection/ProductListHomeSection";
-import { BannerSection } from "@/components/sections/BannerSection/BannerSection";
-import { CouponsSection } from "@/components/sections/CouponsSection/CouponsSection";
-import { RecentSection } from "@/components/sections/RecentSection/RecentSection";
+// import { BannerSection } from "@/components/sections/BannerSection/BannerSection";
+// import { CouponsSection } from "@/components/sections/CouponsSection/CouponsSection";
+// import { RecentSection } from "@/components/sections/RecentSection/RecentSection";
 import { ProductCategorySection } from "@/components/sections/ProductCategorySection/ProductCategorySection";
 import { BannerSliderSection } from "@/components/sections/BannerSliderSection/BannerSliderSection";
 

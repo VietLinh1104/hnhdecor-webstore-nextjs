@@ -2,7 +2,7 @@ import React from "react";
 import { HeaderNavbarSection } from "@/components/sections/HeaderNavbarSection";
 import { FooterSection } from "@/components/sections/FooterSection";
 import { BreadcrumbSection } from "@/components/sections/BreadcrumbSection/BreadcrumbSection";
-import { RecentSection } from "@/components/sections/RecentSection/RecentSection";
+// import { RecentSection } from "@/components/sections/RecentSection/RecentSection";
 import { CheckoutSection } from "@/components/sections/CheckoutSection/CheckoutSection";
 
 export const CheckoutScreen = (): JSX.Element => {

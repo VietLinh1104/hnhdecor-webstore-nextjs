@@ -148,7 +148,7 @@ export const RecentSection = (): JSX.Element => {
             {mainProducts.slice(0, 6).map((product) => (
               <ItemProductComponent
                 key={product.id}
-                product={product}
+                // product={product}
                 className="w-full"
               />
             ))}
