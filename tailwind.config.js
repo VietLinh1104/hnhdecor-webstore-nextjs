@@ -58,9 +58,8 @@ module.exports = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ['var(--font-be-vietnam)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['"Be Vietnam Pro"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         poppins: ['Poppins', 'sans-serif'],
-
       },
       keyframes: {
         "accordion-down": {
