@@ -1,19 +1,18 @@
-// CartSidebarSection.tsx
-
 "use client";
 
 import React from "react";
 import { X, Plus, Minus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { CartItem2 } from "@/types"; // Import your CartItem type
+import { LineItem } from "@/types/carts";
 
 export interface CartSidebarSectionProps {
   isOpen: boolean;
   onClose: () => void;
-  cartItems: CartItem2[];
-  onIncreaseQuantity: (id: number) => void;
-  onDecreaseQuantity: (id: number) => void;
-  onRemoveItem: (id: number) => void;
+  cartItems: LineItem[];
+  onIncreaseQuantity: (id: string) => void;
+  onDecreaseQuantity: (id: string) => void;
+  onRemoveItem: (id: string) => void;
+  isLoading?: boolean;
 }
 
 export const CartSidebarSection = ({
@@ -23,6 +22,7 @@ export const CartSidebarSection = ({
   onIncreaseQuantity,
   onDecreaseQuantity,
   onRemoveItem,
+  isLoading,
 }: CartSidebarSectionProps): JSX.Element => {
   const router = useRouter();
   
@@ -30,19 +30,19 @@ export const CartSidebarSection = ({
     value.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
 
   // Tính tổng tiền giỏ hàng
-  const totalAmount = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const totalAmount = cartItems.reduce((total, item) => total + (item.unit_price * item.quantity), 0);
   const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   // Hàm chuyển đến trang checkout
   const handleCheckout = () => {
-    onClose(); // Đóng sidebar trước
-    router.push('/checkout'); // Chuyển đến trang checkout
+    onClose();
+    router.push('/checkout');
   };
 
   // Hàm chuyển đến trang giỏ hàng chi tiết
   const handleViewCart = () => {
-    onClose(); // Đóng sidebar trước
-    router.push('/cart'); // Chuyển đến trang cart
+    onClose();
+    router.push('/cart');
   };
 
   return (
@@ -86,68 +86,72 @@ export const CartSidebarSection = ({
           ) : (
             <div className="space-y-4">
               {cartItems.map((item) => (
-                <div key={item.id} className="flex gap-3 p-3 border rounded-lg hover:shadow-md transition-shadow">
-                  <img 
-                    src={item.image} 
-                    alt={item.name}
-                    className="w-16 h-16 object-cover rounded"
-                  />
-                  
-                  <div className="flex-1">
-                    <h3 className="text-sm font-medium line-clamp-2 mb-1">
-                      {item.name}
-                    </h3>
+                item.id ? (
+                  <div key={item.id} className="flex gap-3 p-3 border rounded-lg hover:shadow-md transition-shadow">
+                    <img 
+                      src={item.thumbnail} 
+                      alt={item.title}
+                      className="w-16 h-16 object-cover rounded"
+                    />
                     
-                    <div className="flex items-center gap-2 mb-2">
-                      <div 
-                        className="w-4 h-4 rounded-full border border-gray-300"
-                        style={{ backgroundColor: item.color }}
-                      />
-                      <span className="text-xs text-gray-500">Màu sắc</span>
-                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-medium line-clamp-2 mb-1">
+                        {item.title}
+                      </h3>
+                      
+                      {item.variant_title && (
+                        <div className="text-xs text-gray-500 mb-1">
+                          Phân loại: {item.variant_title}
+                        </div>
+                      )}
 
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="text-sm">
-                        <span className="text-red-600 font-medium">
-                          {formatVND(item.price)}
-                        </span>
-                        {item.originalPrice > item.price && (
-                          <div className="text-gray-400 line-through text-xs">
-                            {formatVND(item.originalPrice)}
-                          </div>
-                        )}
+                      {/* Giá tiền */}
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="text-sm">
+                          <span className="text-red-600 font-medium">
+                            {formatVND(item.unit_price)}
+                          </span>
+                          {item.compare_at_unit_price && (
+                            <div className="text-gray-400 line-through text-xs">
+                              {formatVND(item.compare_at_unit_price)}
+                            </div>
+                          )}
+                        </div>
+                        
+                        <button
+                          onClick={() => onRemoveItem(item.id)}
+                          className="text-gray-400 hover:text-red-500 p-1 transition-colors"
+                          disabled={isLoading}
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       </div>
-                      
-                      <button
-                        onClick={() => onRemoveItem(item.id)}
-                        className="text-gray-400 hover:text-red-500 p-1 transition-colors"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
 
-                    {/* Quantity Controls */}
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => onDecreaseQuantity(item.id)}
-                        className="w-6 h-6 flex items-center justify-center border rounded hover:bg-gray-100 transition-colors"
-                      >
-                        <Minus size={12} />
-                      </button>
-                      
-                      <span className="text-sm font-medium w-8 text-center">
-                        {item.quantity}
-                      </span>
-                      
-                      <button
-                        onClick={() => onIncreaseQuantity(item.id)}
-                        className="w-6 h-6 flex items-center justify-center border rounded hover:bg-gray-100 transition-colors"
-                      >
-                        <Plus size={12} />
-                      </button>
+                      {/* Điều chỉnh số lượng */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => onDecreaseQuantity(item.id)}
+                          className="w-6 h-6 flex items-center justify-center border rounded hover:bg-gray-100 transition-colors"
+                          disabled={isLoading}
+                        >
+                          <Minus size={12} />
+                        </button>
+                        
+                        <span className="text-sm font-medium w-8 text-center">
+                          {item.quantity}
+                        </span>
+                        
+                        <button
+                          onClick={() => onIncreaseQuantity(item.id)}
+                          className="w-6 h-6 flex items-center justify-center border rounded hover:bg-gray-100 transition-colors"
+                          disabled={isLoading}
+                        >
+                          <Plus size={12} />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : null
               ))}
             </div>
           )}
@@ -164,21 +168,22 @@ export const CartSidebarSection = ({
             </div>
             
             <div className="space-y-2">
-                <div className="flex gap-5">
-
-                    <button 
-                        onClick={handleCheckout}
-                        className="w-full bg-[#ec720e] text-white py-3 rounded-lg hover:bg-orange-700 transition-colors font-medium"
-                    >
-                        Thanh toán ngay
-                    </button>
-                    <button 
-                        onClick={handleViewCart}
-                        className="w-full border border-[#ec720e] text-[#ec720e] py-3 rounded-lg hover:bg-orange-50 transition-colors font-medium"
-                    >
-                        Xem giỏ hàng
-                    </button>
-                </div>
+              <div className="flex gap-5">
+                <button 
+                  onClick={handleCheckout}
+                  className="w-full bg-[#ec720e] text-white py-3 rounded-lg hover:bg-orange-700 transition-colors font-medium"
+                  disabled={isLoading}
+                >
+                  Thanh toán ngay
+                </button>
+                <button 
+                  onClick={handleViewCart}
+                  className="w-full border border-[#ec720e] text-[#ec720e] py-3 rounded-lg hover:bg-orange-50 transition-colors font-medium"
+                  disabled={isLoading}
+                >
+                  Xem giỏ hàng
+                </button>
+              </div>
             </div>
           </div>
         )}

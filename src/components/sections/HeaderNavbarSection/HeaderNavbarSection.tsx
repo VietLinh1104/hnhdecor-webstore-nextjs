@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react"; 
+import React, { useState } from "react";
 import { 
   NavigationMenu, 
   NavigationMenuItem, 
@@ -13,15 +13,21 @@ import type { MenuItem } from "@/types";
 import Link from 'next/link';
 import { CartSidebarSection } from "@/components/sections/CartSidebarSection/CartSidebarSection";
 import { MobileMenuSection } from "@/components/sections/MobileMenuSection/MobileMenuSection";
- 
-// ✅ Fix cứng dữ liệu menu 
+import { useCart } from "@/contexts/CartContext";
+import {
+  increaseItemQuantity,
+  decreaseItemQuantity,
+  removeItemFromCart
+} from "@/lib/api";
+import { toast } from "react-toastify";
+
 const menuItem: MenuItem[] = [ 
   { label: "Trang chủ", href: "/" }, 
   { label: "Sản phẩm", href: "/product-list" }, 
   { label: "Giới thiệu", href: "/" }, 
   { label: "Liên hệ", href: "/" }, 
 ]; 
- 
+
 const icons = [ 
   { 
     alt: 'Icon cart', 
@@ -37,67 +43,53 @@ const icons = [
   }, 
 ];
 
-// Mock data cho giỏ hàng
-const mockCartItems = [
-  {
-    id: 1,
-    name: "Sofa Băng Phòng Khách Truyền Thống QP115",
-    image: "/melaniecanape3placesgirsclaire-4-13.png",
-    price: 31200000,
-    originalPrice: 62400000,
-    quantity: 1,
-    color: "#d4d4d4"
-  },
-  {
-    id: 2,
-    name: "Ghế Armchair Hiện Đại",
-    image: "/melaniecanape3placesgirsclaire-1-5.png",
-    price: 15600000,
-    originalPrice: 26000000,
-    quantity: 2,
-    color: "#333"
-  }
-];
- 
- 
 export const HeaderNavbarSection = (): JSX.Element => { 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [cartItems, setCartItems] = useState(mockCartItems);
+  const { cartItems, totalItems, isLoading, refreshCart, cartId } = useCart();
 
-  // Tính tổng số lượng sản phẩm
-  const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
-
-  // Xử lý tăng số lượng sản phẩm
-  const handleIncreaseQuantity = (id: number) => {
-    setCartItems(prev => 
-      prev.map(item => 
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-      )
-    );
+  const handleIncreaseQuantity = async (lineItemId: string) => {
+    if (!cartId || isLoading) return;
+    try {
+      const currentItem = cartItems.find(item => item.id === lineItemId);
+      if (!currentItem) return;
+      await increaseItemQuantity(cartId, lineItemId, currentItem.quantity);
+      await refreshCart();
+    } catch (error) {
+      console.error("Lỗi khi tăng số lượng sản phẩm:", error);
+      toast.error("Không thể tăng số lượng sản phẩm. Vui lòng thử lại!");
+    }
   };
 
-  // Xử lý giảm số lượng sản phẩm
-  const handleDecreaseQuantity = (id: number) => {
-    setCartItems(prev => 
-      prev.map(item => 
-        item.id === id && item.quantity > 1 
-          ? { ...item, quantity: item.quantity - 1 } 
-          : item
-      )
-    );
+  const handleDecreaseQuantity = async (lineItemId: string) => {
+    if (!cartId || isLoading) return;
+    try {
+      const currentItem = cartItems.find(item => item.id === lineItemId);
+      if (!currentItem) return;
+      await decreaseItemQuantity(cartId, lineItemId, currentItem.quantity);
+      await refreshCart();
+    } catch (error) {
+      console.error("Lỗi khi giảm số lượng sản phẩm:", error);
+      toast.error("Không thể giảm số lượng sản phẩm. Vui lòng thử lại!");
+    }
   };
 
-  // Xử lý xóa sản phẩm
-  const handleRemoveItem = (id: number) => {
-    setCartItems(prev => prev.filter(item => item.id !== id));
+  const handleRemoveItem = async (lineItemId: string) => {
+    if (!cartId || isLoading) return;
+    try {
+      await removeItemFromCart(cartId, lineItemId);
+      await refreshCart();
+    } catch (error) {
+      console.error("Lỗi khi xóa sản phẩm:", error);
+      toast.error("Không thể xóa sản phẩm. Vui lòng thử lại!");
+    }
   };
 
-  // Xử lý click icon
   const handleIconClick = (icon: typeof icons[0], e: React.MouseEvent) => {
     if (icon.type === 'cart') {
       e.preventDefault();
       setIsCartOpen(true);
+      refreshCart();
     }
   };
 
@@ -113,8 +105,7 @@ export const HeaderNavbarSection = (): JSX.Element => {
       {/* Header Main */} 
       <header className="sticky top-0 z-40 w-full bg-white shadow-md"> 
         <div className="flex items-center max-w-screen-2xl justify-between py-3 md:py-5 mx-auto px-4"> 
-          
-          {/* Mobile Menu Button - Only visible on mobile/tablet */}
+          {/* Mobile Menu Button */}
           <div className="lg:hidden">
             <Button
               variant="ghost"
@@ -126,7 +117,7 @@ export const HeaderNavbarSection = (): JSX.Element => {
             </Button>
           </div>
 
-          {/* Logo - Center on mobile, left on desktop */}
+          {/* Logo */}
           <div className="flex-1 lg:flex-none flex justify-center lg:justify-start">
             <Link href="/" className="flex items-center"> 
               <img 
@@ -137,7 +128,7 @@ export const HeaderNavbarSection = (): JSX.Element => {
             </Link>
           </div> 
  
-          {/* Desktop Navigation - Hidden on mobile/tablet */} 
+          {/* Desktop Navigation */} 
           <div className="hidden lg:block">
             <NavigationMenu> 
               <NavigationMenuList className="flex items-center gap-[30px] xl:gap-[50px]"> 
@@ -155,7 +146,7 @@ export const HeaderNavbarSection = (): JSX.Element => {
             </NavigationMenu>
           </div>
  
-          {/* Icons - Always visible */} 
+          {/* Icons */} 
           <div className="flex items-center gap-3 md:gap-4"> 
             {icons.map((icon, index) => ( 
               icon.type === 'cart' ? (
@@ -163,6 +154,7 @@ export const HeaderNavbarSection = (): JSX.Element => {
                   <button
                     className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                     onClick={(e) => handleIconClick(icon, e)}
+                    disabled={isLoading}
                   >
                     <img 
                       className="w-6 h-6 md:w-7 md:h-7 object-cover" 
@@ -191,7 +183,7 @@ export const HeaderNavbarSection = (): JSX.Element => {
           </div>
         </div> 
 
-        {/* Mobile Search Bar - Optional */}
+        {/* Mobile Search Bar */}
         <div className="lg:hidden border-t bg-gray-50 px-4 py-3">
           <div className="relative">
             <input
@@ -225,6 +217,7 @@ export const HeaderNavbarSection = (): JSX.Element => {
         onIncreaseQuantity={handleIncreaseQuantity}
         onDecreaseQuantity={handleDecreaseQuantity}
         onRemoveItem={handleRemoveItem}
+        isLoading={isLoading}
       />
     </> 
   ); 

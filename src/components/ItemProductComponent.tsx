@@ -40,26 +40,29 @@ export const ItemProductComponent = ({
   const variant =
     product.variants?.find((v) => v.calculated_price) ||
     product.variants?.[0];
-  const originalAmount = variant?.calculated_price?.calculated_amount ?? 0;
-  const originalPrice = variant?.calculated_price?.original_amount ?? 0;
 
-  const parseDescription = (desc: string) => {
-    if (!desc || desc === "0") return { discountPercent: 0, stars: 3 };
-    if (desc.includes("/")) {
-      const [discount, stars] = desc.split("/").map((s) => parseInt(s.trim()));
+  const originalPrice = variant?.calculated_price?.calculated_amount ?? 0;
+
+  // ✅ Lấy discountPercent và stars từ subtitle (vd: "30/5")
+  const parseSubtitle = (subtitle: string) => {
+    if (!subtitle || subtitle === "0") return { discountPercent: 0, stars: 3 };
+    if (subtitle.includes("/")) {
+      const [discount, stars] = subtitle.split("/").map((s) => parseInt(s.trim()));
       return {
         discountPercent: discount || 0,
         stars: stars || 3,
       };
     }
-    return { discountPercent: parseInt(desc) || 0, stars: 3 };
+    return { discountPercent: parseInt(subtitle) || 0, stars: 3 };
   };
-  const { discountPercent, stars } = parseDescription(product.description || "");
 
-  const discountedPrice =
-    discountPercent > 0 && originalAmount > 0
-      ? Math.round(originalAmount * (1 - discountPercent / 100))
-      : originalAmount;
+  const { discountPercent, stars } = parseSubtitle(product.subtitle || "");
+
+  // ✅ Giá gốc trước khi giảm = originalPrice / (1 - discount%)
+  const priceBeforeDiscount =
+    discountPercent > 0
+      ? Math.round(originalPrice / (1 - discountPercent / 100))
+      : originalPrice;
 
   return (
     <Link
@@ -95,12 +98,12 @@ export const ItemProductComponent = ({
               ))}
             </div>
             <div className="font-medium text-[#ff0202] text-base whitespace-nowrap">
-              {formatCurrency(discountedPrice)}
+              {formatCurrency(originalPrice)}
             </div>
             {discountPercent > 0 && (
               <div className="flex items-center gap-1">
                 <span className="text-[#000000a6] text-[17px] line-through">
-                  {formatCurrency(originalAmount)}
+                  {formatCurrency(priceBeforeDiscount)}
                 </span>
                 <Badge className="px-2 py-px bg-[#ed4343] text-white text-xs rounded-full">
                   -{discountPercent}%

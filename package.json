@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@medusajs/js-sdk": "^2.8.8",
+    "@medusajs/medusa-js": "^6.1.10",
+    "@medusajs/types": "^2.8.8",
     "@radix-ui/react-checkbox": "^1.1.2",
     "@radix-ui/react-navigation-menu": "^1.2.1",
     "@radix-ui/react-separator": "^1.1.0",
@@ -22,6 +25,7 @@
     "next": "^14.2.31",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-toastify": "^11.0.5",
     "tailwind-merge": "2.5.4",
     "tailwindcss-animate": "1.0.7"
   },

@@ -41,13 +41,13 @@ export const AsideFilterSection = (): JSX.Element => {
         <h3 className="font-normal text-black text-xl">Danh mục sản phẩm</h3>
         <div className="flex flex-col items-start gap-[5px]">
           {categories.map((cat, idx) => {
-            const checked = selectedCategories.includes(cat.handle); // dùng `handle` để làm slug
+            const checked = selectedCategories.includes(cat.id); // dùng `handle` để làm slug
             return (
               <div key={cat.id} className="flex items-center gap-2.5">
                 <Checkbox
                   id={`cat-${idx}`}
                   checked={checked}
-                  onCheckedChange={() => handleCategoryToggle(cat.handle)}
+                  onCheckedChange={() => handleCategoryToggle(cat.id)}
                   className="w-[15px] h-[15px] border-[0.5px] border-solid border-[#00000063]"
                 />
                 <label

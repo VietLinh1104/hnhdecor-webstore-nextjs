@@ -34,7 +34,7 @@ export const ProductCategorySection = (): JSX.Element => {
         {categories.map((category) => (
           <Link
             key={category.id}
-            href={`/product-list/?category=${category.handle}`}
+            href={`/product-list/?category=${category.id}`}
             className="group cursor-pointer"
           >
             <div className="flex flex-col items-center text-center">

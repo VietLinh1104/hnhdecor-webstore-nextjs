@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ItemProductComponent } from "@/components/ItemProductComponent"
 import { AsideFilterSection } from "@/components/sections/AsideFilterSection/AsideFilterSection"
 import { ChevronDown } from "lucide-react"
-
+import { useSearchParams } from "next/navigation"
 import { Product } from "@/types/product"
 import { getAllProducts } from "@/lib/api"
 
@@ -18,6 +18,8 @@ export const ProductListSection = (): JSX.Element => {
   const [error, setError] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<SortOption>("name-asc")
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
+  const searchParams = useSearchParams();
+
 
   const sortOptions = [
     { value: "name-asc", label: "Tên A → Z" },
@@ -57,18 +59,22 @@ export const ProductListSection = (): JSX.Element => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const data = await getAllProducts()
-        setProducts(data)
-      } catch (err: any) {
-        console.error("Error fetching products:", err)
-        setError("Không thể tải sản phẩm. Vui lòng thử lại sau.")
-      } finally {
-        setLoading(false)
-      }
-    }
+        // Lấy tất cả category từ URL: ?category=a&category=b
+        const categoryParams = searchParams.getAll("category");
 
-    fetchProducts()
-  }, [])
+        const data = await getAllProducts(categoryParams);
+        setProducts(data);
+      } catch (err: any) {
+        console.error("Error fetching products:", err);
+        setError("Không thể tải sản phẩm. Vui lòng thử lại sau.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [searchParams]);
+
 
   useEffect(() => {
     setSortedProducts(sortProducts(products, sortBy))
