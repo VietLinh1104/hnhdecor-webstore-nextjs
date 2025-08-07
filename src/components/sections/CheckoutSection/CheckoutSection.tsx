@@ -27,14 +27,15 @@ export const CheckoutSection = (): JSX.Element => {
     phone: "",
     email: "",
     address: "",
-    ward: "",
     district: "",
+    ward: "",
     province: "",
     note: "",
   });
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [paymentMethod] = useState("COD"); // Chỉ hỗ trợ COD
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [emailError, setEmailError] = useState("");
 
   // If we have a cartId from URL but no cart items in context, you might want to fetch the cart
   useEffect(() => {
@@ -70,12 +71,28 @@ export const CheckoutSection = (): JSX.Element => {
   };
   orderSummary.total = orderSummary.subtotal + orderSummary.shippingFee - orderSummary.discount;
 
+  // Email validation function
+  const validateEmail = (email: string): boolean => {
+    if (!email) return true; // Email is optional
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   // Xử lý thay đổi input
   const handleInputChange = (field: keyof ShippingInfo, value: string) => {
     setShippingInfo((prev) => ({
       ...prev,
       [field]: value,
     }));
+
+    // Validate email on change
+    if (field === "email") {
+      if (value && !validateEmail(value)) {
+        setEmailError("Vui lòng nhập địa chỉ email hợp lệ");
+      } else {
+        setEmailError("");
+      }
+    }
   };
 
   // Kiểm tra form hợp lệ
@@ -85,14 +102,23 @@ export const CheckoutSection = (): JSX.Element => {
       "phone",
       "address",
       "ward",
-      "district",
       "province",
     ];
-    return requiredFields.every((field) => shippingInfo[field].trim() !== "") && agreeTerms && mappedCartItems.length > 0;
+    
+    const requiredFieldsValid = requiredFields.every((field) => shippingInfo[field].trim() !== "");
+    const emailValid = !shippingInfo.email || validateEmail(shippingInfo.email);
+    
+    return requiredFieldsValid && emailValid && agreeTerms && mappedCartItems.length > 0;
   };
 
   // Xử lý đặt hàng
   const handlePlaceOrder = async () => {
+    // Validate email before proceeding
+    if (shippingInfo.email && !validateEmail(shippingInfo.email)) {
+      toast.error("Vui lòng nhập địa chỉ email hợp lệ!");
+      return;
+    }
+
     if (!isFormValid()) {
       toast.error("Vui lòng điền đầy đủ thông tin, đồng ý với điều khoản và đảm bảo giỏ hàng không trống!");
       return;
@@ -246,11 +272,12 @@ export const CheckoutSection = (): JSX.Element => {
                       placeholder="Nhập email để nhận thông báo"
                       value={shippingInfo.email}
                       onChange={(e) => handleInputChange("email", e.target.value)}
-                      className="w-full"
-                      pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-                      required
+                      className={`w-full ${emailError ? 'border-red-500' : ''}`}
                       disabled={isLoading || isSubmitting}
                     />
+                    {emailError && (
+                      <p className="text-red-500 text-sm mt-1">{emailError}</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -263,7 +290,7 @@ export const CheckoutSection = (): JSX.Element => {
                 </h2>
 
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-2">
                         Tỉnh/Thành phố <span className="text-red-500">*</span>
@@ -272,19 +299,6 @@ export const CheckoutSection = (): JSX.Element => {
                         placeholder="Chọn tỉnh/thành phố"
                         value={shippingInfo.province}
                         onChange={(e) => handleInputChange("province", e.target.value)}
-                        className="w-full"
-                        disabled={isLoading || isSubmitting}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Quận/Huyện <span className="text-red-500">*</span>
-                      </label>
-                      <Input
-                        placeholder="Chọn quận/huyện"
-                        value={shippingInfo.district}
-                        onChange={(e) => handleInputChange("district", e.target.value)}
                         className="w-full"
                         disabled={isLoading || isSubmitting}
                       />
