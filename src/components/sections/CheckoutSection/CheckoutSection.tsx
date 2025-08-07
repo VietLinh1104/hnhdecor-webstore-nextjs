@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MapPin, Phone, User, Mail, CreditCard, Truck, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,15 +8,20 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { OrderSummary, ShippingInfo, CartItem } from "@/types/carts";
 import { LineItem } from "@/types/carts";
 import { useCart } from "@/contexts/CartContext";
-import {updateCartCustomerInfo, createOrder } from "@/lib/api";
+import { updateCartCustomerInfo } from "@/lib/api";
 import { toast } from "react-toastify";
 import Link from "next/link";
-import {sdk} from "@/lib/medusa";
-
-
+import { sdk } from "@/lib/medusa";
+import { useSearchParams } from "next/navigation";
 
 export const CheckoutSection = (): JSX.Element => {
-  const { cartItems, totalItems, cartId, isLoading, refreshCart } = useCart();
+  const { cartItems, totalItems, cartId: contextCartId, isLoading, refreshCart } = useCart();
+  const searchParams = useSearchParams();
+  
+  // Get cartId from URL params if it exists, otherwise use context cartId
+  const urlCartId = searchParams.get('cartId');
+  const cartId = urlCartId || contextCartId;
+
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     fullName: "",
     phone: "",
@@ -30,6 +35,14 @@ export const CheckoutSection = (): JSX.Element => {
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [paymentMethod] = useState("COD"); // Chỉ hỗ trợ COD
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // If we have a cartId from URL but no cart items in context, you might want to fetch the cart
+  useEffect(() => {
+    if (urlCartId && urlCartId !== contextCartId) {
+      // Optional: You might want to fetch cart data here if using URL cartId
+      console.log('Using cartId from URL:', urlCartId);
+    }
+  }, [urlCartId, contextCartId]);
 
   // Mapping LineItem sang CartItem
   const mappedCartItems: CartItem[] = cartItems.map((item: LineItem) => ({
@@ -68,17 +81,17 @@ export const CheckoutSection = (): JSX.Element => {
   // Kiểm tra form hợp lệ
   const isFormValid = () => {
     const requiredFields: (keyof ShippingInfo)[] = [
-        "fullName",
-        "phone",
-        "address",
-        "ward",
-        "district",
-        "province",
-      ];
-      return requiredFields.every((field) => shippingInfo[field].trim() !== "") && agreeTerms && mappedCartItems.length > 0;
-    };
+      "fullName",
+      "phone",
+      "address",
+      "ward",
+      "district",
+      "province",
+    ];
+    return requiredFields.every((field) => shippingInfo[field].trim() !== "") && agreeTerms && mappedCartItems.length > 0;
+  };
 
-    // Xử lý đặt hàng
+  // Xử lý đặt hàng
   const handlePlaceOrder = async () => {
     if (!isFormValid()) {
       toast.error("Vui lòng điền đầy đủ thông tin, đồng ý với điều khoản và đảm bảo giỏ hàng không trống!");
@@ -113,8 +126,7 @@ export const CheckoutSection = (): JSX.Element => {
         billing_address: address,
       });
 
-      const { cart } = await sdk.store.cart.retrieve(cartId)
-
+      const { cart } = await sdk.store.cart.retrieve(cartId);
 
       sdk.auth.login("user", "emailpass", {
         email: "linhtx2004@gmail.com",
@@ -122,42 +134,38 @@ export const CheckoutSection = (): JSX.Element => {
       }).then(() => {
         // Sau khi đăng nhập thành công, các request admin sẽ tự động được xác thực
         sdk.admin.shippingOption.list().then(({ shipping_options }) => {
-          console.log(shipping_options)
-        })
-      })
+          console.log(shipping_options);
+        });
+      });
 
       sdk.store.cart.addShippingMethod(cartId, {
         option_id: "so_01K1ZVNQATP2FQQ55EP3ESXJP0",
       }).then(({ cart }) => {
-        console.log( "ship: " +cart)
-      })
+        console.log("ship: " + cart);
+      });
 
       // ✅ Hoàn tất đơn hàng bằng SDK
-      // const result = await medusa.carts.retrieve(cartId);
       await sdk.store.payment.initiatePaymentSession(cart, {
         provider_id: "pp_system_default", // Manual System Payment Provider
-      })
+      });
 
       sdk.admin.shippingOption.list().then(({ shipping_options }) => {
-        console.log(shipping_options)
-      })
-      
+        console.log(shipping_options);
+      });
+
       sdk.store.cart.complete(cartId).then((data) => {
         if (data.type === "cart") {
-          alert(data.error.message)
+          alert(data.error.message);
           // Xử lý lỗi nếu có
         } else {
           localStorage.setItem("orderId", data.order.id);
-          console.log("Mã đơn hàng:", data.order.id); 
+          console.log("Mã đơn hàng:", data.order.id);
           // Đơn hàng đã được tạo thành công
           refreshCart();
           localStorage.removeItem("cart");
           window.location.href = "/order-success";
         }
-      })
-
-
-
+      });
     } catch (error) {
       console.error("Lỗi khi đặt hàng:", error);
       toast.error("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!");
@@ -166,12 +174,18 @@ export const CheckoutSection = (): JSX.Element => {
     }
   };
 
-
-
-
   return (
     <section className="max-w-screen-2xl w-full mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Thông tin thanh toán</h1>
+      
+      {/* Debug info - remove in production */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="mb-4 p-3 bg-gray-100 rounded text-sm">
+          <p>Cart ID from URL: {urlCartId || 'None'}</p>
+          <p>Cart ID from Context: {contextCartId || 'None'}</p>
+          <p>Using Cart ID: {cartId || 'None'}</p>
+        </div>
+      )}
 
       {mappedCartItems.length === 0 ? (
         <div className="text-center py-16">

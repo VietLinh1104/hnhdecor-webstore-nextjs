@@ -172,9 +172,31 @@ export const ProductDetailSection = ({
   };
 
   const handleBuyNow = async () => {
-    await handleAddToCart();
-    // Sau khi thêm vào giỏ hàng, có thể redirect đến trang checkout
-    // window.location.href = '/checkout';
+
+    if (!selectedVariant) {
+      console.warn("Vui lòng chọn biến thể sản phẩm.");
+      return;
+    }
+    // await handleAddToCart();
+    const newCartId = await createCart();
+
+    if (!newCartId) {
+      throw new Error("Không thể tạo giỏ hàng mới.");
+    }
+
+    const orderDetails = {
+      variant_id: selectedVariant.id,
+      quantity,
+    };
+
+    localStorage.setItem("cartNow", newCartId);
+
+    await addItemToCart(newCartId, orderDetails);
+    await new Promise((res) => setTimeout(res, 300));
+
+    // chuyển sang trang thanh toán
+    window.location.href = `/checkout?cartId=${newCartId}`;
+    
   };
 
   return (

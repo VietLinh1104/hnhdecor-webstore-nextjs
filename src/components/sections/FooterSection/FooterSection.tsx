@@ -5,16 +5,15 @@ import { Input } from "@/components/ui/input";
 export const FooterSection = (): JSX.Element => {
   // Company information data
   const companyInfo = [
-    "Thương hiệu nội thất uy tín và chất lượng, cam kết mang đến những trải nghiệm mua sắm tiện lợi, hiện đại và phong phú",
-    "Mã số thuế: 12345678999",
-    "Địa chỉ: 70 Lu Gia, District 11, Ho Chi Minh City",
+    "Thương hiệu đồ decor uy tín và chất lượng, cam kết mang đến những trải nghiệm mua sắm tiện lợi, hiện đại và phong phú",
+    "Địa chỉ: Đường Nguyên Phi Ỷ Lan, Phường Từ Sơn, Bắc Ninh",
     {
       label: "Số điện thoại: ",
-      value: "19006750",
+      value: "033 7008360",
       isLink: true,
-      href: "tel:19006750",
+      href: "tel:033 7008360",
     },
-    "Email: support@sapo.vn",
+    "Email: contact@hnhdecor.com",
   ];
 
   // Customer support links
@@ -22,7 +21,6 @@ export const FooterSection = (): JSX.Element => {
     "Giới thiệu",
     "Thông tin liên hệ",
     "Tra cứu cửa hàng",
-    "Tư vấn nội thất theo phong thủy",
   ];
 
   // Policy links
@@ -30,14 +28,12 @@ export const FooterSection = (): JSX.Element => {
     "Điều khoản dịch vụ",
     "Chính sách bảo mật",
     "Chính sách đổi trả",
-    "Chính sách bảo mật",
   ];
 
   // Social media icons
   const socialMediaIcons = [
     { name: "Tiktok", src: "/tiktok-1.png" },
     { name: "Instagram", src: "/instagram-1.png" },
-    { name: "Youtube", src: "/youtube-1.png" },
     { name: "Facebook", src: "/facebook-1.png" },
     { name: "Zalo", src: "/zalo-1.png" },
   ];
@@ -55,7 +51,7 @@ export const FooterSection = (): JSX.Element => {
           />
 
           <h2 className="relative self-stretch font-sans font-semibold text-white text-xl sm:text-2xl tracking-[0] leading-[normal]">
-            Siêu thị nội thất EGA
+            H&H DECOR
           </h2>
 
           {companyInfo.map((info, index) =>

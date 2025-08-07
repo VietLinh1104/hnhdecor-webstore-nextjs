@@ -170,13 +170,6 @@ export const CartSidebarSection = ({
             <div className="space-y-2">
               <div className="flex gap-5">
                 <button 
-                  onClick={handleCheckout}
-                  className="w-full bg-[#ec720e] text-white py-3 rounded-lg hover:bg-orange-700 transition-colors font-medium"
-                  disabled={isLoading}
-                >
-                  Thanh toán ngay
-                </button>
-                <button 
                   onClick={handleViewCart}
                   className="w-full border border-[#ec720e] text-[#ec720e] py-3 rounded-lg hover:bg-orange-50 transition-colors font-medium"
                   disabled={isLoading}
