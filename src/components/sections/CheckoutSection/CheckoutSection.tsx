@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { MapPin, Phone, User, Mail, CreditCard, Truck, CheckCircle } from "lucide-react";
+import { MapPin, Phone, User, Mail, CreditCard, Truck, CheckCircle, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,6 +12,62 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import { sdk } from "@/lib/medusa";
 import { useSearchParams } from "next/navigation";
+import { getProvinces, getWardsByProvince } from "@/lib/tinhthanh";
+import { Province, Ward } from "@/types/tinhthanh";
+
+// Custom Select Component
+const Select: React.FC<{
+  value: string;
+  onValueChange: (value: string) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  children: React.ReactNode;
+}> = ({ value, onValueChange, placeholder, disabled, children }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+        disabled={disabled}
+        className={`w-full flex items-center justify-between px-3 py-2 border rounded-md bg-white text-left ${
+          disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-gray-400"
+        } ${isOpen ? "border-blue-500" : "border-gray-300"}`}
+      >
+        <span className={value ? "text-gray-900" : "text-gray-500"}>
+          {value || placeholder}
+        </span>
+        <ChevronDown size={16} className={`transition-transform ${isOpen ? "rotate-180" : ""}`} />
+      </button>
+      
+      {isOpen && !disabled && (
+        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const SelectItem: React.FC<{
+  value: string;
+  children: React.ReactNode;
+  onSelect: (value: string) => void;
+  onClose: () => void;
+}> = ({ value, children, onSelect, onClose }) => {
+  return (
+    <div
+      onClick={() => {
+        onSelect(value);
+        onClose();
+      }}
+      className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+    >
+      {children}
+    </div>
+  );
+};
 
 export const CheckoutSection = (): JSX.Element => {
   const { cartItems, totalItems, cartId: contextCartId, isLoading, refreshCart } = useCart();
@@ -21,6 +77,15 @@ export const CheckoutSection = (): JSX.Element => {
 
   const [localCart, setLocalCart] = useState<any | null>(null);
   const [localCartLoading, setLocalCartLoading] = useState(false);
+
+  // Address states
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [wards, setWards] = useState<Ward[]>([]);
+  const [isLoadingProvinces, setIsLoadingProvinces] = useState(false);
+  const [isLoadingWards, setIsLoadingWards] = useState(false);
+  const [selectedProvinceCode, setSelectedProvinceCode] = useState("");
+  const [isProvinceOpen, setIsProvinceOpen] = useState(false);
+  const [isWardOpen, setIsWardOpen] = useState(false);
 
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     fullName: "",
@@ -37,6 +102,46 @@ export const CheckoutSection = (): JSX.Element => {
   const [paymentMethod] = useState("COD");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailError, setEmailError] = useState("");
+
+  // Load provinces on mount
+  useEffect(() => {
+    const loadProvinces = async () => {
+      setIsLoadingProvinces(true);
+      try {
+        const response = await getProvinces();
+        setProvinces(response.data);
+      } catch (error) {
+        console.error("Lỗi khi tải danh sách tỉnh/thành:", error);
+        toast.error("Không thể tải danh sách tỉnh/thành phố");
+      } finally {
+        setIsLoadingProvinces(false);
+      }
+    };
+
+    loadProvinces();
+  }, []);
+
+  // Load wards when province changes
+  useEffect(() => {
+    if (selectedProvinceCode) {
+      const loadWards = async () => {
+        setIsLoadingWards(true);
+        try {
+          const response = await getWardsByProvince(selectedProvinceCode);
+          setWards(response.data);
+        } catch (error) {
+          console.error("Lỗi khi tải danh sách phường/xã:", error);
+          toast.error("Không thể tải danh sách phường/xã");
+        } finally {
+          setIsLoadingWards(false);
+        }
+      };
+
+      loadWards();
+    } else {
+      setWards([]);
+    }
+  }, [selectedProvinceCode]);
 
   // Nếu dùng cartId từ URL, load cart
   useEffect(() => {
@@ -100,6 +205,19 @@ export const CheckoutSection = (): JSX.Element => {
     }
   };
 
+  const handleProvinceChange = (provinceCode: string, provinceName: string) => {
+    setSelectedProvinceCode(provinceCode);
+    handleInputChange("province", provinceName);
+    // Reset ward when province changes
+    handleInputChange("ward", "");
+    setIsProvinceOpen(false);
+  };
+
+  const handleWardChange = (wardName: string) => {
+    handleInputChange("ward", wardName);
+    setIsWardOpen(false);
+  };
+
   const isFormValid = () => {
     const requiredFields: (keyof ShippingInfo)[] = [
       "fullName",
@@ -143,6 +261,7 @@ export const CheckoutSection = (): JSX.Element => {
         last_name: lastName,
         address_1: shippingInfo.address,
         city: shippingInfo.ward,
+        province: shippingInfo.province, // Thêm trường province
         postal_code: "700000",
         phone: shippingInfo.phone,
         country_code: "vn",
@@ -186,15 +305,6 @@ export const CheckoutSection = (): JSX.Element => {
   return (
     <section className="max-w-screen-2xl w-full mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Thông tin thanh toán</h1>
-      
-      {/* Debug info - remove in production */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="mb-4 p-3 bg-gray-100 rounded text-sm">
-          <p>Cart ID from URL: {urlCartId || 'None'}</p>
-          <p>Cart ID from Context: {contextCartId || 'None'}</p>
-          <p>Using Cart ID: {cartId || 'None'}</p>
-        </div>
-      )}
 
       {mappedCartItems.length === 0 ? (
         <div className="text-center py-16">
@@ -274,30 +384,111 @@ export const CheckoutSection = (): JSX.Element => {
 
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Tỉnh/Thành phố Dropdown */}
                     <div>
                       <label className="block text-sm font-medium mb-2">
                         Tỉnh/Thành phố <span className="text-red-500">*</span>
                       </label>
-                      <Input
-                        placeholder="Chọn tỉnh/thành phố"
-                        value={shippingInfo.province}
-                        onChange={(e) => handleInputChange("province", e.target.value)}
-                        className="w-full"
-                        disabled={isLoading || isSubmitting}
-                      />
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={() => !isLoadingProvinces && !isLoading && !isSubmitting && setIsProvinceOpen(!isProvinceOpen)}
+                          disabled={isLoadingProvinces || isLoading || isSubmitting}
+                          className={`w-full flex items-center justify-between px-3 py-2 border rounded-md bg-white text-left ${
+                            isLoadingProvinces || isLoading || isSubmitting 
+                              ? "opacity-50 cursor-not-allowed" 
+                              : "cursor-pointer hover:border-gray-400"
+                          } ${isProvinceOpen ? "border-blue-500" : "border-gray-300"}`}
+                        >
+                          <span className={shippingInfo.province ? "text-gray-900" : "text-gray-500"}>
+                            {isLoadingProvinces ? "Đang tải..." : shippingInfo.province || "Chọn tỉnh/thành phố"}
+                          </span>
+                          <ChevronDown size={16} className={`transition-transform ${isProvinceOpen ? "rotate-180" : ""}`} />
+                        </button>
+                        
+                        {isProvinceOpen && !isLoadingProvinces && !isLoading && !isSubmitting && (
+                          <>
+                            <div 
+                              className="fixed inset-0 z-40" 
+                              onClick={() => setIsProvinceOpen(false)}
+                            />
+                            <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                              {provinces.map((province) => (
+                                <div
+                                  key={province.code}
+                                  onClick={() => handleProvinceChange(province.code, province.name)}
+                                  className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                                >
+                                  {province.name}
+                                </div>
+                              ))}
+                              {provinces.length === 0 && (
+                                <div className="px-3 py-2 text-sm text-gray-500">
+                                  Không có dữ liệu
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
 
+                    {/* Phường/Xã Dropdown */}
                     <div>
                       <label className="block text-sm font-medium mb-2">
                         Phường/Xã <span className="text-red-500">*</span>
                       </label>
-                      <Input
-                        placeholder="Chọn phường/xã"
-                        value={shippingInfo.ward}
-                        onChange={(e) => handleInputChange("ward", e.target.value)}
-                        className="w-full"
-                        disabled={isLoading || isSubmitting}
-                      />
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (selectedProvinceCode && !isLoadingWards && !isLoading && !isSubmitting) {
+                              setIsWardOpen(!isWardOpen);
+                            }
+                          }}
+                          disabled={!selectedProvinceCode || isLoadingWards || isLoading || isSubmitting}
+                          className={`w-full flex items-center justify-between px-3 py-2 border rounded-md bg-white text-left ${
+                            !selectedProvinceCode || isLoadingWards || isLoading || isSubmitting
+                              ? "opacity-50 cursor-not-allowed" 
+                              : "cursor-pointer hover:border-gray-400"
+                          } ${isWardOpen ? "border-blue-500" : "border-gray-300"}`}
+                        >
+                          <span className={shippingInfo.ward ? "text-gray-900" : "text-gray-500"}>
+                            {!selectedProvinceCode 
+                              ? "Chọn tỉnh/thành phố trước" 
+                              : isLoadingWards 
+                              ? "Đang tải..." 
+                              : shippingInfo.ward || "Chọn phường/xã"
+                            }
+                          </span>
+                          <ChevronDown size={16} className={`transition-transform ${isWardOpen ? "rotate-180" : ""}`} />
+                        </button>
+                        
+                        {isWardOpen && !isLoadingWards && !isLoading && !isSubmitting && selectedProvinceCode && (
+                          <>
+                            <div 
+                              className="fixed inset-0 z-40" 
+                              onClick={() => setIsWardOpen(false)}
+                            />
+                            <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                              {wards.map((ward) => (
+                                <div
+                                  key={ward.code}
+                                  onClick={() => handleWardChange(ward.name)}
+                                  className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                                >
+                                  {ward.name}
+                                </div>
+                              ))}
+                              {wards.length === 0 && (
+                                <div className="px-3 py-2 text-sm text-gray-500">
+                                  Không có dữ liệu
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -401,7 +592,7 @@ export const CheckoutSection = (): JSX.Element => {
 
                 <div className="flex justify-between">
                   <span>Phí vận chuyển</span>
-                  <span>{orderSummary.shippingFee === 0 ? "Miễn phí" : formatVND(orderSummary.shippingFee)}</span>
+                  <span>Thông báo</span>
                 </div>
 
                 {orderSummary.discount > 0 && (

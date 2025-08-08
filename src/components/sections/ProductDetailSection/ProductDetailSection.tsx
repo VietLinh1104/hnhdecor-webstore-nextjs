@@ -201,8 +201,9 @@ export const ProductDetailSection = ({
 
   return (
     <section className="max-w-screen-2xl w-full mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+
       {/* LEFT: Images */}
-      <div className="flex gap-6">
+      <div className="flex gap-6 col-span-2 md:col-span-1">
         <div className="flex flex-col gap-4 h-[300px] overflow-y-auto md:h-full">
           {product.images.map((img, index) => (
             <Image
@@ -231,7 +232,7 @@ export const ProductDetailSection = ({
       </div>
 
       {/* RIGHT: Details */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 col-span-2 md:col-span-1">
         <h1 className="text-2xl font-semibold">{product.title}</h1>
 
         {/* ⭐ Hiển thị đánh giá sao */}
