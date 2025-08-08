@@ -7,6 +7,7 @@ import { ProductListHomeSection } from "@/components/sections/ProductListHomeSec
 // import { RecentSection } from "@/components/sections/RecentSection/RecentSection";
 import { ProductCategorySection } from "@/components/sections/ProductCategorySection/ProductCategorySection";
 import { BannerSliderSection } from "@/components/sections/BannerSliderSection/BannerSliderSection";
+import { ProductCarouselSection } from "@/components/sections/ProductCarouselSection/ProductCarouselSection";
 
 export const FrameScreen = (): JSX.Element => {
   return (
@@ -19,6 +20,12 @@ export const FrameScreen = (): JSX.Element => {
         {/* <CouponsSection /> */}
         <ProductCategorySection />
         <ProductListHomeSection />
+        {/* <ProductCarouselSection
+          title="Sản phẩm dành cho phòng khách"
+          limit={12}                // Lấy tối đa 12 sản phẩm
+          categories={["pcat_01K1VHEKB2F4A0Z0NRRB4B0601"]}   // (Tùy chọn) lọc theo ID danh mục
+          viewAllHref="/product-list" // Link khi bấm "Xem tất cả"
+        /> */}
         {/* <RecentSection /> */}
       </main>
       <FooterSection />

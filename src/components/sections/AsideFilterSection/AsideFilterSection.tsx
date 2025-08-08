@@ -11,29 +11,27 @@ export const AsideFilterSection = (): JSX.Element => {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // Lấy các danh mục đang chọn từ query (?category=slug)
-  const selectedCategories = searchParams.getAll("category")
+  // Lấy các ID danh mục đang chọn từ query (?category=<id>)
+  const selectedCategoryIds = searchParams.getAll("category")
 
   useEffect(() => {
     getAllCategories().then(setCategories).catch(() => setCategories([]))
   }, [])
 
-  // Lấy slug dùng cho query (ưu tiên handle/slug, fallback id)
-  const getCatSlug = (cat: ProductCategory) =>
-    (cat as any).handle || (cat as any).slug || cat.id
-
-  const handleCategoryToggle = (slug: string) => {
+  const handleCategoryToggle = (id: string) => {
     const params = new URLSearchParams(searchParams.toString())
 
-    if (selectedCategories.includes(slug)) {
-      const remaining = selectedCategories.filter((cat) => cat !== slug)
+    if (selectedCategoryIds.includes(id)) {
+      // Bỏ id ra khỏi list
+      const remaining = selectedCategoryIds.filter((c) => c !== id)
       params.delete("category")
-      remaining.forEach((cat) => params.append("category", cat))
+      remaining.forEach((c) => params.append("category", c))
     } else {
-      params.append("category", slug)
+      // Thêm id vào list
+      params.append("category", id)
     }
 
-    // Reset page nếu có phân trang (tuỳ app)
+    // Nếu có phân trang thì reset
     params.delete("page")
 
     router.push(`?${params.toString()}`)
@@ -45,14 +43,14 @@ export const AsideFilterSection = (): JSX.Element => {
         <h3 className="font-normal text-black text-xl">Danh mục sản phẩm</h3>
         <div className="flex flex-col items-start gap-[10px] w-full">
           {categories.map((cat, idx) => {
-            const slug = getCatSlug(cat)
-            const checked = selectedCategories.includes(slug)
+            const id = String(cat.id) // đảm bảo kiểu string
+            const checked = selectedCategoryIds.includes(id)
             return (
-              <div key={slug} className="flex items-center gap-2.5">
+              <div key={id} className="flex items-center gap-2.5">
                 <Checkbox
                   id={`cat-${idx}`}
                   checked={checked}
-                  onCheckedChange={() => handleCategoryToggle(slug)}
+                  onCheckedChange={() => handleCategoryToggle(id)}
                   className="w-[15px] h-[15px] border-[0.5px] border-solid border-[#00000063]"
                 />
                 <label
