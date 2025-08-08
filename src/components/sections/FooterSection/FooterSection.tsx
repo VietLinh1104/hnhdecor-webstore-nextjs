@@ -47,7 +47,7 @@ export const FooterSection = (): JSX.Element => {
           <img
             className="relative w-[120px] sm:w-[140px] lg:w-[152px] h-auto object-cover"
             alt="Logo footer"
-            src="/logo-footer-1.png"
+            src="/logo-white.svg"
           />
 
           <h2 className="relative self-stretch font-sans font-semibold text-white text-xl sm:text-2xl tracking-[0] leading-[normal]">
@@ -163,13 +163,13 @@ export const FooterSection = (): JSX.Element => {
           </div>
 
           {/* Trust badge */}
-          <div className="inline-flex items-center justify-center gap-2.5 relative flex-[0_0_auto] w-full">
+          {/* <div className="inline-flex items-center justify-center gap-2.5 relative flex-[0_0_auto] w-full">
             <img
               className="relative w-full max-w-[301px] h-auto object-cover"
               alt="Footer trustbadge"
               src="/footer-trustbadge-1.png"
             />
-          </div>
+          </div> */}
         </div>
       </div>
     </footer>

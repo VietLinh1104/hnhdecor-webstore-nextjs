@@ -16,19 +16,19 @@ interface MobileMenuSectionProps {
 const additionalMenuItems = [
   { 
     label: "Tài khoản", 
-    href: "/account", 
+    href: "/", 
     icon: User,
     description: "Thông tin cá nhân"
   },
   { 
     label: "Đơn hàng", 
-    href: "/orders", 
+    href: "/", 
     icon: Package,
     description: "Theo dõi đơn hàng"
   },
   { 
     label: "Cài đặt", 
-    href: "/settings", 
+    href: "/", 
     icon: Settings,
     description: "Tùy chỉnh ứng dụng"
   },
@@ -84,11 +84,11 @@ export const MobileMenuSection = ({
               <img 
                 className="h-8 object-cover" 
                 alt="Logo" 
-                src="/logo-1.png" 
+                src="/logo-white.svg" 
               />
               <div className="text-white">
-                <h2 className="font-bold text-lg">Furniture Store</h2>
-                <p className="text-sm opacity-90">Nội thất cao cấp</p>
+                <h2 className="font-bold text-lg">H&H Decor</h2>
+                <p className="text-sm opacity-90">Cửa hàng trang trí</p>
               </div>
             </div>
             
@@ -154,7 +154,7 @@ export const MobileMenuSection = ({
           <Separator />
 
           {/* Additional Menu Items */}
-          <div className="py-4">
+          {/* <div className="py-4">
             <div className="px-6 pb-4">
               <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
                 Tài khoản
@@ -194,7 +194,7 @@ export const MobileMenuSection = ({
                 );
               })}
             </nav>
-          </div>
+          </div> */}
 
           <Separator />
 
@@ -209,7 +209,7 @@ export const MobileMenuSection = ({
                 <Phone size={16} className="text-[#ec720e]" />
                 <span className="text-gray-700">
                   <a href="tel:19001234" className="hover:text-[#ec720e]">
-                    1900 1234
+                    033 7008360
                   </a>
                 </span>
               </div>
@@ -221,7 +221,7 @@ export const MobileMenuSection = ({
                 </svg>
                 <span className="text-gray-700">
                   <a href="mailto:support@furniture.com" className="hover:text-[#ec720e]">
-                    support@furniture.com
+                    contact@hnhdecor.com
                   </a>
                 </span>
               </div>
@@ -256,7 +256,7 @@ export const MobileMenuSection = ({
           {/* Footer */}
           <div className="p-6 bg-gray-50 mt-auto">
             <div className="text-center text-xs text-gray-500">
-              <p>© 2025 Furniture Store</p>
+              <p>© 2025 H&H Decor</p>
               <p>Designed with ❤️ in Vietnam</p>
             </div>
           </div>

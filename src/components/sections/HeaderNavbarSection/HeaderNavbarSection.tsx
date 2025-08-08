@@ -123,7 +123,7 @@ export const HeaderNavbarSection = (): JSX.Element => {
               <img 
                 className="h-8 md:h-10 object-cover" 
                 alt="Logo" 
-                src="/logo-1.png" 
+                src="/logo-black.svg" 
               /> 
             </Link>
           </div> 

@@ -5,8 +5,8 @@ import './globals.css';
 import { CartProvider } from '@/contexts/CartContext'; // import CartProvider
 
 export const metadata: Metadata = {
-  title: 'H&H Decor - Cửa hàng nội thất trực tuyến',
-  description: 'Khám phá bộ sưu tập nội thất hiện đại và tiện nghi tại H&H Decor. Mua sắm trực tuyến với nhiều ưu đãi hấp dẫn.',
+  title: 'H&H Decor - Cửa hàng đồ trang trí trực tuyến',
+  description: 'Khám phá bộ sưu tập nội thất decor hiện đại và tiện nghi tại H&H Decor. Mua sắm trực tuyến với nhiều ưu đãi hấp dẫn.',
 };
 
 export default function RootLayout({
