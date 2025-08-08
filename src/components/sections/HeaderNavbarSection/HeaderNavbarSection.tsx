@@ -104,9 +104,9 @@ export const HeaderNavbarSection = (): JSX.Element => {
  
       {/* Header Main */} 
       <header className="sticky top-0 z-40 w-full bg-white shadow-md"> 
-        <div className="flex items-center max-w-screen-2xl justify-between py-3 md:py-5 mx-auto px-4"> 
+        <div className="grid grid-cols-3 lg:flex items-center max-w-screen-2xl justify-between py-3 md:py-5 mx-auto px-4"> 
           {/* Mobile Menu Button */}
-          <div className="lg:hidden">
+          <div className="lg:hidden col-span-1">
             <Button
               variant="ghost"
               size="sm"
@@ -118,7 +118,7 @@ export const HeaderNavbarSection = (): JSX.Element => {
           </div>
 
           {/* Logo */}
-          <div className="flex-1 lg:flex-none flex justify-center lg:justify-start">
+          <div className="col-span-1 flex-1 lg:flex-none flex justify-center lg:justify-start">
             <Link href="/" className="flex items-center"> 
               <img 
                 className="h-8 md:h-10 object-cover" 
@@ -147,7 +147,7 @@ export const HeaderNavbarSection = (): JSX.Element => {
           </div>
  
           {/* Icons */} 
-          <div className="flex items-center gap-3 md:gap-4"> 
+          <div className="col-span-1 flex items-center justify-end gap-3 md:gap-4"> 
             {icons.map((icon, index) => ( 
               icon.type === 'cart' ? (
                 <div key={index} className="relative">
@@ -184,7 +184,7 @@ export const HeaderNavbarSection = (): JSX.Element => {
         </div> 
 
         {/* Mobile Search Bar */}
-        <div className="lg:hidden border-t bg-gray-50 px-4 py-3">
+        {/* <div className="lg:hidden border-t bg-gray-50 px-4 py-3">
           <div className="relative">
             <input
               type="text"
@@ -199,7 +199,7 @@ export const HeaderNavbarSection = (): JSX.Element => {
               />
             </button>
           </div>
-        </div>
+        </div> */}
       </header>
 
       {/* Mobile Menu Component */}

@@ -208,7 +208,7 @@ export const MobileMenuSection = ({
               <div className="flex items-center gap-3">
                 <Phone size={16} className="text-[#ec720e]" />
                 <span className="text-gray-700">
-                  <a href="tel:19001234" className="hover:text-[#ec720e]">
+                  <a href="tel:033 7008360" className="hover:text-[#ec720e]">
                     033 7008360
                   </a>
                 </span>
@@ -220,7 +220,7 @@ export const MobileMenuSection = ({
                   <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                 </svg>
                 <span className="text-gray-700">
-                  <a href="mailto:support@furniture.com" className="hover:text-[#ec720e]">
+                  <a href="mailto:contact@hnhdecor.com" className="hover:text-[#ec720e]">
                     contact@hnhdecor.com
                   </a>
                 </span>
