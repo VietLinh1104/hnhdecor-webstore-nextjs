@@ -70,20 +70,24 @@ export const ItemProductComponent = ({
       className={`group no-underline text-inherit ${className}`}
     >
       <Card className="border-none shadow-none w-full cursor-pointer">
-        <div className="relative overflow-hidden w-full h-[301px] group">
+
+        {/* image */}
+        <div className="relative overflow-hidden w-full aspect-[3/2] lg:h-[301px] group">
           <img
             src={firstImage}
             alt={product.title}
-            className="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-105"
+            className="w-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-105"
           />
           {secondImage && (
             <img
               src={secondImage}
               alt={`${product.title} hover`}
-              className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 ease-in-out group-hover:opacity-100"
+              className="absolute inset-0 w-full object-cover opacity-0 transition-opacity duration-500 ease-in-out group-hover:opacity-100"
             />
           )}
         </div>
+
+        {/* content */}
         <CardContent className="p-0">
           <div className="flex flex-col items-start gap-1 w-full">
             <span className="font-poppins font-extralight opacity-45 text-black text-sm">

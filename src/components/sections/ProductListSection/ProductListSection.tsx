@@ -60,7 +60,7 @@ export const ProductListSection = (): JSX.Element => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const categoryParams = searchParams.getAll("category") // ?category=a&category=b
+        const categoryParams = searchParams.getAll("category")
         const data = await getAllProducts(categoryParams)
         setProducts(data)
       } catch (err: any) {
@@ -166,7 +166,7 @@ export const ProductListSection = (): JSX.Element => {
             )}
 
             {!loading && !error && sortedProducts.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 gap-x-0 lg:gap-x-6">
                 {sortedProducts.map((product) => (
                   <ItemProductComponent
                     key={product.id}

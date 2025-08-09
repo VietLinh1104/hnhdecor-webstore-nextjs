@@ -46,11 +46,11 @@ export const ProductListHomeSection = (): JSX.Element => {
         </div>
 
         <div className="flex items-start justify-between w-full">
-          <div className="flex flex-col items-start gap-2.5 p-2.5 flex-1">
+          <div className="flex flex-col items-start gap-2.5 lg:p-2.5 flex-1">
             {loading ? (
               <p className="text-gray-500">Đang tải sản phẩm...</p>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[35px] gap-y-11 w-full">
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-[35px] lg:gap-[35px] lg:gap-y-11 w-full">
                 {products.map((product) => (
                     <ItemProductComponent
                       key={product.id}
