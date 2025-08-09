@@ -183,7 +183,7 @@ export const CheckoutSection = (): JSX.Element => {
   const orderSummary: OrderSummary = {
     subtotal: mappedCartItems.reduce((total, item) => total + item.price * item.quantity, 0),
     shippingFee: mappedCartItems.length > 0 ? 30000 : 0,
-    discount: 50000,
+    discount: 0,
     total: 0,
   };
   orderSummary.total = orderSummary.subtotal + orderSummary.shippingFee - orderSummary.discount;

@@ -81,12 +81,12 @@ export const OrderSuccessSection = (): JSX.Element => {
   };
 
   const handleCallSupport = () => {
-    window.open("tel:19001234", "_self");
+    window.open("tel:033 7008360", "_self");
     // console.log(orderData);
   };
 
   const handleEmailSupport = () => {
-    window.open("mailto:support@furniture.com", "_self");
+    window.open("mailto:contact@hnhdecor.com", "_self");
   };
 
   return (
@@ -348,7 +348,7 @@ export const OrderSuccessSection = (): JSX.Element => {
                 onClick={handleCallSupport}
               >
                 <Phone size={16} className="mr-2" />
-                Gọi hotline: 1900 1234
+                Gọi hotline: 033 7008360
               </Button>
               <Button
                 variant="outline"
@@ -356,7 +356,7 @@ export const OrderSuccessSection = (): JSX.Element => {
                 onClick={handleEmailSupport}
               >
                 <Mail size={16} className="mr-2" />
-                Email: support@furniture.com
+                Email: contact@hnhdecor.com
               </Button>
             </div>
             <div className="mt-4 text-xs text-gray-500 space-y-1">
