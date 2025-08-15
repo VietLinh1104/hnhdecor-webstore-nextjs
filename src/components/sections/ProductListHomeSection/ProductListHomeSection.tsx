@@ -50,7 +50,7 @@ export const ProductListHomeSection = (): JSX.Element => {
             {loading ? (
               <p className="text-gray-500">Đang tải sản phẩm...</p>
             ) : (
-              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-[35px] lg:gap-[35px] lg:gap-y-11 w-full">
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-[35px] gap-x-2 lg:gap-[35px] lg:gap-y-11 w-full">
                 {products.map((product) => (
                     <ItemProductComponent
                       key={product.id}

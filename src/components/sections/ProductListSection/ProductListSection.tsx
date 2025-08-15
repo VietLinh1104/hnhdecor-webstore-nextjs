@@ -166,7 +166,7 @@ export const ProductListSection = (): JSX.Element => {
             )}
 
             {!loading && !error && sortedProducts.length > 0 && (
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 gap-x-0 lg:gap-x-6">
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-2 gap-6 lg:gap-x-6">
                 {sortedProducts.map((product) => (
                   <ItemProductComponent
                     key={product.id}

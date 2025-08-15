@@ -72,7 +72,7 @@ export const ItemProductComponent = ({
       <Card className="border-none shadow-none w-full cursor-pointer">
 
         {/* image */}
-        <div className="relative overflow-hidden w-full aspect-[3/2] lg:h-[301px] group">
+        <div className="relative overflow-hidden w-full aspect-square lg:h-[301px] group">
           <img
             src={firstImage}
             alt={product.title}
