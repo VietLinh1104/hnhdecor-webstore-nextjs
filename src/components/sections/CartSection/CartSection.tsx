@@ -14,38 +14,38 @@ import { LineItem } from "@/types/carts";
 
 // Mock data cho voucher (có thể thay bằng API sau)
 const availableVouchers: Voucher[] = [
-  {
-    code: "EGAFREESHIP",
-    title: "Miễn phí vận chuyển",
-    discount: 0,
-    minOrder: 500000,
-    type: "fixed",
-    isAvailable: true,
-  },
-  {
-    code: "GIAM50K",
-    title: "Giảm 50.000đ cho đơn từ 1 triệu",
-    discount: 50000,
-    minOrder: 1000000,
-    type: "fixed",
-    isAvailable: true,
-  },
-  {
-    code: "GIAM30",
-    title: "Giảm 30% tối đa 500.000đ",
-    discount: 30,
-    minOrder: 2000000,
-    type: "percent",
-    isAvailable: true,
-  },
-  {
-    code: "NEWUSER20",
-    title: "Giảm 20% cho khách hàng mới",
-    discount: 20,
-    minOrder: 500000,
-    type: "percent",
-    isAvailable: false,
-  },
+  // {
+  //   code: "EGAFREESHIP",
+  //   title: "Miễn phí vận chuyển",
+  //   discount: 0,
+  //   minOrder: 500000,
+  //   type: "fixed",
+  //   isAvailable: true,
+  // },
+  // {
+  //   code: "GIAM50K",
+  //   title: "Giảm 50.000đ cho đơn từ 1 triệu",
+  //   discount: 50000,
+  //   minOrder: 1000000,
+  //   type: "fixed",
+  //   isAvailable: true,
+  // },
+  // {
+  //   code: "GIAM30",
+  //   title: "Giảm 30% tối đa 500.000đ",
+  //   discount: 30,
+  //   minOrder: 2000000,
+  //   type: "percent",
+  //   isAvailable: true,
+  // },
+  // {
+  //   code: "NEWUSER20",
+  //   title: "Giảm 20% cho khách hàng mới",
+  //   discount: 20,
+  //   minOrder: 500000,
+  //   type: "percent",
+  //   isAvailable: false,
+  // },
 ];
 
 export const CartSection = (): JSX.Element => {

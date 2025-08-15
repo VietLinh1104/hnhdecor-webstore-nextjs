@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { MapPin, Phone, User, Mail, CreditCard, Truck, CheckCircle } from "lucide-react";
+import { MapPin, User, CreditCard, Truck, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { OrderSummary, ShippingInfo, CartItem } from "@/types/carts";
-import { LineItem } from "@/types/carts";
+import { ShippingInfo, CartItem, LineItem } from "@/types/carts";
 import { useCart } from "@/contexts/CartContext";
 import { updateCartCustomerInfo } from "@/lib/api";
 import { toast } from "react-toastify";
@@ -14,12 +13,26 @@ import Link from "next/link";
 import { sdk } from "@/lib/medusa";
 import { useSearchParams } from "next/navigation";
 
+// Xoá mọi shipping methods bằng SDK client để đảm bảo dùng đúng session
+async function removeAllShippingMethods(cartId: string) {
+  const { cart } = await sdk.store.cart.retrieve(cartId);
+  if (cart.shipping_methods?.length) {
+    await Promise.all(
+      cart.shipping_methods.map((m: any) =>
+        // @ts-ignore low-level client
+        sdk.client.request("DELETE", `/store/carts/${cartId}/shipping-methods/${m.id}`)
+      )
+    );
+  }
+  const res = await sdk.store.cart.retrieve(cartId);
+  return res.cart;
+}
+
 export const CheckoutSection = (): JSX.Element => {
-  const { cartItems, totalItems, cartId: contextCartId, isLoading, refreshCart } = useCart();
+  const { cartItems, totalItems, cartId: contextCartId, isLoading, refreshCart, cartTotals: ctxTotals } = useCart();
   const searchParams = useSearchParams();
-  
-  // Get cartId from URL params if it exists, otherwise use context cartId
-  const urlCartId = searchParams.get('cartId');
+
+  const urlCartId = searchParams.get("cartId");
   const cartId = urlCartId || contextCartId;
 
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
@@ -33,19 +46,26 @@ export const CheckoutSection = (): JSX.Element => {
     note: "",
   });
   const [agreeTerms, setAgreeTerms] = useState(false);
-  const [paymentMethod] = useState("COD"); // Chỉ hỗ trợ COD
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailError, setEmailError] = useState("");
 
-  // If we have a cartId from URL but no cart items in context, you might want to fetch the cart
-  useEffect(() => {
-    if (urlCartId && urlCartId !== contextCartId) {
-      // Optional: You might want to fetch cart data here if using URL cartId
-      console.log('Using cartId from URL:', urlCartId);
-    }
-  }, [urlCartId, contextCartId]);
+  // Totals hiển thị (lấy từ Context → backend). Fallback 0 để tránh lỗi.
+  const totals = {
+    subtotal: ctxTotals?.subtotal ?? 0,
+    shipping_total: ctxTotals?.shipping_total ?? 0,
+    discount_total: ctxTotals?.discount_total ?? 0,
+    tax_total: ctxTotals?.tax_total ?? 0,
+    total: ctxTotals?.total ?? 0,
+  };
 
-  // Mapping LineItem sang CartItem
+  // Debug: thấy ngay nếu UI khác API
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      console.log("Checkout UI USING totals:", totals);
+    }
+  }, [ctxTotals]);
+
+  // Map items để render
   const mappedCartItems: CartItem[] = cartItems.map((item: LineItem) => ({
     id: item.id,
     name: item.title,
@@ -53,84 +73,51 @@ export const CheckoutSection = (): JSX.Element => {
     price: item.unit_price,
     originalPrice: item.compare_at_unit_price,
     quantity: item.quantity,
-    color: item.metadata?.color || "#000",
-    colorName: item.metadata?.colorName || item.variant_title || "Không xác định",
-    sku: item.metadata?.sku || item.variant_id,
+    color: (item as any).metadata?.color || "#000",
+    colorName: (item as any).metadata?.colorName || item.variant_title || "Không xác định",
+    sku: (item as any).metadata?.sku || item.variant_id,
     variant_title: item.variant_title,
   }));
 
-  const formatVND = (value: number): string =>
-    value.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+  const formatVND = (v: number): string =>
+    (v || 0).toLocaleString("vi-VN", { style: "currency", currency: "VND" });
 
-  // Tính toán giá trị đơn hàng
-  const orderSummary: OrderSummary = {
-    subtotal: mappedCartItems.reduce((total, item) => total + item.price * item.quantity, 0),
-    shippingFee: mappedCartItems.length > 0 ? 30000 : 0, // Phí ship cố định nếu có sản phẩm
-    discount: 50000, // Mock discount, integrate with cart.promotions later
-    total: 0,
-  };
-  orderSummary.total = orderSummary.subtotal + orderSummary.shippingFee - orderSummary.discount;
-
-  // Email validation function
   const validateEmail = (email: string): boolean => {
-    if (!email) return true; // Email is optional
+    if (!email) return true;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  // Xử lý thay đổi input
   const handleInputChange = (field: keyof ShippingInfo, value: string) => {
-    setShippingInfo((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-
-    // Validate email on change
+    setShippingInfo((prev) => ({ ...prev, [field]: value }));
     if (field === "email") {
-      if (value && !validateEmail(value)) {
-        setEmailError("Vui lòng nhập địa chỉ email hợp lệ");
-      } else {
-        setEmailError("");
-      }
+      if (value && !validateEmail(value)) setEmailError("Vui lòng nhập địa chỉ email hợp lệ");
+      else setEmailError("");
     }
   };
 
-  // Kiểm tra form hợp lệ
   const isFormValid = () => {
-    const requiredFields: (keyof ShippingInfo)[] = [
-      "fullName",
-      "phone",
-      "address",
-      "ward",
-      "province",
-    ];
-    
-    const requiredFieldsValid = requiredFields.every((field) => shippingInfo[field].trim() !== "");
-    const emailValid = !shippingInfo.email || validateEmail(shippingInfo.email);
-    
-    return requiredFieldsValid && emailValid && agreeTerms && mappedCartItems.length > 0;
+    const required: (keyof ShippingInfo)[] = ["fullName", "phone", "address", "ward", "province"];
+    const okReq = required.every((f) => shippingInfo[f].trim() !== "");
+    const okEmail = !shippingInfo.email || validateEmail(shippingInfo.email);
+    return okReq && okEmail && agreeTerms && mappedCartItems.length > 0;
   };
 
-  // Xử lý đặt hàng
   const handlePlaceOrder = async () => {
-    // Validate email before proceeding
     if (shippingInfo.email && !validateEmail(shippingInfo.email)) {
       toast.error("Vui lòng nhập địa chỉ email hợp lệ!");
       return;
     }
-
     if (!isFormValid()) {
-      toast.error("Vui lòng điền đầy đủ thông tin, đồng ý với điều khoản và đảm bảo giỏ hàng không trống!");
+      toast.error("Vui lòng điền đầy đủ thông tin, đồng ý điều khoản và đảm bảo giỏ hàng không trống!");
       return;
     }
-
     if (!cartId) {
       toast.error("Không tìm thấy giỏ hàng. Vui lòng thử lại!");
       return;
     }
 
     setIsSubmitting(true);
-
     try {
       const firstName = shippingInfo.fullName.split(" ").slice(0, -1).join(" ") || "Unknown";
       const lastName = shippingInfo.fullName.split(" ").slice(-1)[0] || "Unknown";
@@ -145,55 +132,33 @@ export const CheckoutSection = (): JSX.Element => {
         country_code: "vn",
       };
 
-      // ✅ Cập nhật thông tin khách hàng
+      // 1) Cập nhật thông tin khách hàng
       await updateCartCustomerInfo(cartId, {
         email: shippingInfo.email || "guest@example.com",
         shipping_address: address,
         billing_address: address,
       });
 
-      const { cart } = await sdk.store.cart.retrieve(cartId);
+      // 2) Đảm bảo không còn shipping method nào (tránh phí ẩn)
+      const cartNoShip = await removeAllShippingMethods(cartId);
 
-      sdk.auth.login("user", "emailpass", {
-        email: "linhtx2004@gmail.com",
-        password: "Ltx622004$01",
-      }).then(() => {
-        // Sau khi đăng nhập thành công, các request admin sẽ tự động được xác thực
-        sdk.admin.shippingOption.list().then(({ shipping_options }) => {
-          console.log(shipping_options);
-        });
+      // 3) Khởi tạo phiên thanh toán (Manual)
+      await sdk.store.payment.initiatePaymentSession(cartNoShip, {
+        provider_id: "pp_system_default",
       });
 
-      sdk.store.cart.addShippingMethod(cartId, {
-        option_id: "so_01K1ZVNQATP2FQQ55EP3ESXJP0",
-      }).then(({ cart }) => {
-        console.log("ship: " + cart);
-      });
-
-      // ✅ Hoàn tất đơn hàng bằng SDK
-      await sdk.store.payment.initiatePaymentSession(cart, {
-        provider_id: "pp_system_default", // Manual System Payment Provider
-      });
-
-      sdk.admin.shippingOption.list().then(({ shipping_options }) => {
-        console.log(shipping_options);
-      });
-
-      sdk.store.cart.complete(cartId).then((data) => {
-        if (data.type === "cart") {
-          alert(data.error.message);
-          // Xử lý lỗi nếu có
-        } else {
-          localStorage.setItem("orderId", data.order.id);
-          console.log("Mã đơn hàng:", data.order.id);
-          // Đơn hàng đã được tạo thành công
-          refreshCart();
-          localStorage.removeItem("cart");
-          window.location.href = "/order-success";
-        }
-      });
-    } catch (error) {
-      console.error("Lỗi khi đặt hàng:", error);
+      // 4) Hoàn tất đơn
+      const completed = await sdk.store.cart.complete(cartId);
+      if (completed.type === "cart") {
+        alert(completed.error.message);
+      } else {
+        localStorage.setItem("orderId", completed.order.id);
+        refreshCart();
+        localStorage.removeItem("cart");
+        window.location.href = "/order-success";
+      }
+    } catch (e) {
+      console.error("Lỗi khi đặt hàng:", e);
       toast.error("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!");
     } finally {
       setIsSubmitting(false);
@@ -203,15 +168,6 @@ export const CheckoutSection = (): JSX.Element => {
   return (
     <section className="max-w-screen-2xl w-full mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Thông tin thanh toán</h1>
-      
-      {/* Debug info - remove in production */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="mb-4 p-3 bg-gray-100 rounded text-sm">
-          <p>Cart ID from URL: {urlCartId || 'None'}</p>
-          <p>Cart ID from Context: {contextCartId || 'None'}</p>
-          <p>Using Cart ID: {cartId || 'None'}</p>
-        </div>
-      )}
 
       {mappedCartItems.length === 0 ? (
         <div className="text-center py-16">
@@ -226,10 +182,10 @@ export const CheckoutSection = (): JSX.Element => {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* LEFT: SHIPPING INFORMATION */}
+          {/* LEFT */}
           <div className="lg:col-span-2">
             <div className="bg-white border rounded-lg">
-              {/* Thông tin liên hệ */}
+              {/* Contact */}
               <div className="p-6 border-b">
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <User size={20} />
@@ -245,7 +201,6 @@ export const CheckoutSection = (): JSX.Element => {
                       placeholder="Nhập họ và tên"
                       value={shippingInfo.fullName}
                       onChange={(e) => handleInputChange("fullName", e.target.value)}
-                      className="w-full"
                       disabled={isLoading || isSubmitting}
                     />
                   </div>
@@ -258,31 +213,26 @@ export const CheckoutSection = (): JSX.Element => {
                       placeholder="Nhập số điện thoại"
                       value={shippingInfo.phone}
                       onChange={(e) => handleInputChange("phone", e.target.value)}
-                      className="w-full"
                       disabled={isLoading || isSubmitting}
                     />
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-2">
-                      Email (tùy chọn)
-                    </label>
+                    <label className="block text-sm font-medium mb-2">Email (tùy chọn)</label>
                     <Input
                       type="email"
                       placeholder="Nhập email để nhận thông báo"
                       value={shippingInfo.email}
                       onChange={(e) => handleInputChange("email", e.target.value)}
-                      className={`w-full ${emailError ? 'border-red-500' : ''}`}
+                      className={emailError ? "border-red-500" : ""}
                       disabled={isLoading || isSubmitting}
                     />
-                    {emailError && (
-                      <p className="text-red-500 text-sm mt-1">{emailError}</p>
-                    )}
+                    {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
                   </div>
                 </div>
               </div>
 
-              {/* Địa chỉ giao hàng */}
+              {/* Address */}
               <div className="p-6 border-b">
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <MapPin size={20} />
@@ -299,7 +249,6 @@ export const CheckoutSection = (): JSX.Element => {
                         placeholder="Chọn tỉnh/thành phố"
                         value={shippingInfo.province}
                         onChange={(e) => handleInputChange("province", e.target.value)}
-                        className="w-full"
                         disabled={isLoading || isSubmitting}
                       />
                     </div>
@@ -312,7 +261,6 @@ export const CheckoutSection = (): JSX.Element => {
                         placeholder="Chọn phường/xã"
                         value={shippingInfo.ward}
                         onChange={(e) => handleInputChange("ward", e.target.value)}
-                        className="w-full"
                         disabled={isLoading || isSubmitting}
                       />
                     </div>
@@ -326,15 +274,12 @@ export const CheckoutSection = (): JSX.Element => {
                       placeholder="Nhập số nhà, tên đường..."
                       value={shippingInfo.address}
                       onChange={(e) => handleInputChange("address", e.target.value)}
-                      className="w-full"
                       disabled={isLoading || isSubmitting}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Ghi chú (tùy chọn)
-                    </label>
+                    <label className="block text-sm font-medium mb-2">Ghi chú (tùy chọn)</label>
                     <textarea
                       placeholder="Ghi chú thêm cho đơn hàng..."
                       value={shippingInfo.note}
@@ -346,7 +291,7 @@ export const CheckoutSection = (): JSX.Element => {
                 </div>
               </div>
 
-              {/* Phương thức thanh toán */}
+              {/* Payment */}
               <div className="p-6">
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <CreditCard size={20} />
@@ -369,38 +314,24 @@ export const CheckoutSection = (): JSX.Element => {
             </div>
           </div>
 
-          {/* RIGHT: ORDER SUMMARY */}
+          {/* RIGHT */}
           <div className="lg:col-span-1">
             <div className="bg-white border rounded-lg p-6 sticky top-20">
               <h2 className="text-lg font-semibold mb-4">Thông tin đơn hàng</h2>
 
-              {/* Sản phẩm trong đơn */}
               <div className="mb-6">
                 <h3 className="font-medium mb-3">Sản phẩm ({totalItems} sản phẩm)</h3>
                 <div className="space-y-3 max-h-48 overflow-y-auto">
                   {mappedCartItems.map((item) => (
                     <div key={item.id} className="flex gap-3 p-3 bg-gray-50 rounded-lg">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-12 h-12 object-cover rounded flex-shrink-0"
-                      />
+                      <img src={item.image} alt={item.name} className="w-12 h-12 object-cover rounded" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium line-clamp-2">{item.name}</p>
                         {item.variant_title && (
                           <div className="text-xs text-gray-500 mt-1">Phân loại: {item.variant_title}</div>
                         )}
-                        <div className="flex items-center gap-2 mt-1">
-                          <div
-                            className="w-3 h-3 rounded-full border"
-                            style={{ backgroundColor: item.color }}
-                          />
-                          <span className="text-xs text-gray-500">{item.colorName}</span>
-                        </div>
                         <div className="flex justify-between items-center mt-1">
-                          <span className="text-sm font-medium text-red-600">
-                            {formatVND(item.price)}
-                          </span>
+                          <span className="text-sm font-medium text-red-600">{formatVND(item.price)}</span>
                           <span className="text-xs text-gray-500">x{item.quantity}</span>
                         </div>
                       </div>
@@ -409,22 +340,28 @@ export const CheckoutSection = (): JSX.Element => {
                 </div>
               </div>
 
-              {/* Tóm tắt giá */}
+              {/* Totals: chỉ từ backend */}
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between">
                   <span>Tạm tính</span>
-                  <span>{formatVND(orderSummary.subtotal)}</span>
+                  <span>{formatVND(totals.subtotal)}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span>Phí vận chuyển</span>
-                  <span>{orderSummary.shippingFee === 0 ? "Miễn phí" : formatVND(orderSummary.shippingFee)}</span>
+                  <span>{totals.shipping_total === 0 ? "Miễn phí" : formatVND(totals.shipping_total)}</span>
                 </div>
 
-                {orderSummary.discount > 0 && (
+                {/* Luôn hiện Thuế để rõ ràng */}
+                <div className="flex justify-between">
+                  <span>Thuế</span>
+                  <span>{formatVND(totals.tax_total)}</span>
+                </div>
+
+                {totals.discount_total > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span>Giảm giá</span>
-                    <span>-{formatVND(orderSummary.discount)}</span>
+                    <span>-{formatVND(totals.discount_total)}</span>
                   </div>
                 )}
 
@@ -432,11 +369,10 @@ export const CheckoutSection = (): JSX.Element => {
 
                 <div className="flex justify-between text-lg font-semibold">
                   <span>Tổng cộng</span>
-                  <span className="text-red-600">{formatVND(orderSummary.total)}</span>
+                  <span className="text-red-600">{formatVND(totals.total)}</span>
                 </div>
               </div>
 
-              {/* Điều khoản */}
               <div className="mb-6">
                 <div className="flex items-start gap-3">
                   <Checkbox
@@ -454,13 +390,12 @@ export const CheckoutSection = (): JSX.Element => {
                     và{" "}
                     <a href="#" className="text-[#ec720e] hover:underline">
                       Chính sách Bảo mật
-                    </a>{" "}
-                    của cửa hàng.
+                    </a>
+                    .
                   </label>
                 </div>
               </div>
 
-              {/* Nút đặt hàng */}
               <Button
                 onClick={handlePlaceOrder}
                 disabled={!isFormValid() || isSubmitting || isLoading}
@@ -475,12 +410,11 @@ export const CheckoutSection = (): JSX.Element => {
                 ) : (
                   <div className="flex items-center gap-2">
                     <CheckCircle size={20} />
-                    Xác nhận đặt hàng
+                    Xác nhận đặt hàng 
                   </div>
                 )}
               </Button>
 
-              {/* Thông tin bổ sung */}
               <div className="mt-4 text-xs text-gray-500 space-y-1">
                 <p>• Đơn hàng sẽ được xác nhận trong 24h</p>
                 <p>• Miễn phí đổi trả trong 30 ngày</p>

@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { MapPin, Phone, User, Mail, CreditCard, Truck, CheckCircle, ChevronDown } from "lucide-react";
+import { MapPin, User, CreditCard, Truck, CheckCircle, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ShippingInfo, CartItem, OrderSummary, LineItem } from "@/types/carts";
+import { ShippingInfo, CartItem, LineItem } from "@/types/carts";
 import { useCart } from "@/contexts/CartContext";
 import { updateCartCustomerInfo } from "@/lib/api";
 import { toast } from "react-toastify";
@@ -42,7 +42,7 @@ const Select: React.FC<{
       </button>
       
       {isOpen && !disabled && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border rounded-md shadow-lg max_h-60 max-h-60 overflow-y-auto">
           {children}
         </div>
       )}
@@ -77,6 +77,15 @@ export const CheckoutSection = (): JSX.Element => {
 
   const [localCart, setLocalCart] = useState<any | null>(null);
   const [localCartLoading, setLocalCartLoading] = useState(false);
+
+  // Totals từ backend (KHÔNG tính tay ở UI)
+  const [totals, setTotals] = useState({
+    subtotal: 0,
+    shipping_total: 0,
+    discount_total: 0,
+    tax_total: 0,
+    total: 0,
+  });
 
   // Address states
   const [provinces, setProvinces] = useState<Province[]>([]);
@@ -158,6 +167,29 @@ export const CheckoutSection = (): JSX.Element => {
     }
   }, [urlCartId]);
 
+  // Lấy totals từ backend (UI KHÔNG tự cộng ship/discount)
+  useEffect(() => {
+    if (!cartId) return;
+    sdk.store.cart.retrieve(cartId).then(({ cart }) => {
+      setTotals({
+        subtotal: cart.subtotal ?? 0,
+        shipping_total: cart.shipping_total ?? 0,
+        discount_total: cart.discount_total ?? 0,
+        tax_total: cart.tax_total ?? 0,
+        total: cart.total ?? 0,
+      });
+      if (process.env.NODE_ENV === "development") {
+        console.log("Totals from API:", {
+          subtotal: cart.subtotal,
+          shipping_total: cart.shipping_total,
+          discount_total: cart.discount_total,
+          tax_total: cart.tax_total,
+          total: cart.total,
+        });
+      }
+    });
+  }, [cartId, localCartLoading, totalItems]);
+
   const effectiveCartItems: LineItem[] = urlCartId
     ? localCart?.items || []
     : cartItems;
@@ -178,15 +210,7 @@ export const CheckoutSection = (): JSX.Element => {
   }));
 
   const formatVND = (value: number): string =>
-    value.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
-
-  const orderSummary: OrderSummary = {
-    subtotal: mappedCartItems.reduce((total, item) => total + item.price * item.quantity, 0),
-    shippingFee: mappedCartItems.length > 0 ? 30000 : 0,
-    discount: 0,
-    total: 0,
-  };
-  orderSummary.total = orderSummary.subtotal + orderSummary.shippingFee - orderSummary.discount;
+    (value || 0).toLocaleString("vi-VN", { style: "currency", currency: "VND" });
 
   const validateEmail = (email: string): boolean => {
     if (!email) return true;
@@ -208,8 +232,7 @@ export const CheckoutSection = (): JSX.Element => {
   const handleProvinceChange = (provinceCode: string, provinceName: string) => {
     setSelectedProvinceCode(provinceCode);
     handleInputChange("province", provinceName);
-    // Reset ward when province changes
-    handleInputChange("ward", "");
+    handleInputChange("ward", ""); // Reset ward khi đổi tỉnh
     setIsProvinceOpen(false);
   };
 
@@ -261,7 +284,7 @@ export const CheckoutSection = (): JSX.Element => {
         last_name: lastName,
         address_1: shippingInfo.address,
         city: shippingInfo.ward,
-        province: shippingInfo.province, // Thêm trường province
+        province: shippingInfo.province,
         postal_code: "700000",
         phone: shippingInfo.phone,
         country_code: "vn",
@@ -274,18 +297,28 @@ export const CheckoutSection = (): JSX.Element => {
         billing_address: address,
       });
 
-      const { cart } = await sdk.store.cart.retrieve(cartId);
-
+      // (Giữ nguyên logic add shipping method nếu option của bạn là 0đ)
       await sdk.store.cart.addShippingMethod(cartId, {
         option_id: "so_01K1ZVNQATP2FQQ55EP3ESXJP0",
       });
 
+      // Khởi tạo thanh toán
+      const { cart } = await sdk.store.cart.retrieve(cartId);
       await sdk.store.payment.initiatePaymentSession(cart, {
         provider_id: "pp_system_default",
       });
 
-      const result = await sdk.store.cart.complete(cartId);
+      // Cập nhật totals một lần nữa trước khi complete cho chắc
+      const afterInit = await sdk.store.cart.retrieve(cartId);
+      setTotals({
+        subtotal: afterInit.cart.subtotal ?? 0,
+        shipping_total: afterInit.cart.shipping_total ?? 0,
+        discount_total: afterInit.cart.discount_total ?? 0,
+        tax_total: afterInit.cart.tax_total ?? 0,
+        total: afterInit.cart.total ?? 0,
+      });
 
+      const result = await sdk.store.cart.complete(cartId);
       if ("order" in result) {
         localStorage.setItem("orderId", result.order.id);
         if (!urlCartId) refreshCart();
@@ -550,7 +583,7 @@ export const CheckoutSection = (): JSX.Element => {
 
               {/* Sản phẩm trong đơn */}
               <div className="mb-6">
-                <h3 className="font-medium mb-3">Sản phẩm ({totalItems} sản phẩm)</h3>
+                <h3 className="font-medium mb-3">Sản phẩm ({effectiveTotalItems} sản phẩm)</h3>
                 <div className="space-y-3 max-h-48 overflow-y-auto">
                   {mappedCartItems.map((item) => (
                     <div key={item.id} className="flex gap-3 p-3 bg-gray-50 rounded-lg">
@@ -583,22 +616,29 @@ export const CheckoutSection = (): JSX.Element => {
                 </div>
               </div>
 
-              {/* Tóm tắt giá */}
+              {/* Tóm tắt giá — CHỈ số từ backend */}
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between">
                   <span>Tạm tính</span>
-                  <span>{formatVND(orderSummary.subtotal)}</span>
+                  <span>{formatVND(totals.subtotal)}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span>Phí vận chuyển</span>
-                  <span>Thông báo</span>
+                  <span>{totals.shipping_total === 0 ? "Miễn phí" : formatVND(totals.shipping_total)}</span>
                 </div>
 
-                {orderSummary.discount > 0 && (
+                {totals.discount_total > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span>Giảm giá</span>
-                    <span>-{formatVND(orderSummary.discount)}</span>
+                    <span>-{formatVND(totals.discount_total)}</span>
+                  </div>
+                )}
+
+                {totals.tax_total > 0 && (
+                  <div className="flex justify-between">
+                    <span>Thuế</span>
+                    <span>{formatVND(totals.tax_total)}</span>
                   </div>
                 )}
 
@@ -606,7 +646,7 @@ export const CheckoutSection = (): JSX.Element => {
 
                 <div className="flex justify-between text-lg font-semibold">
                   <span>Tổng cộng</span>
-                  <span className="text-red-600">{formatVND(orderSummary.total)}</span>
+                  <span className="text-red-600">{formatVND(totals.total)}</span>
                 </div>
               </div>
 

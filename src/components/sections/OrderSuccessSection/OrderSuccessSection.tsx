@@ -301,7 +301,7 @@ export const OrderSuccessSection = (): JSX.Element => {
               </div>
               <div className="flex justify-between">
                 <span>Phí vận chuyển</span>
-                <span className="text-green-600">Miễn phí</span>
+                <span className="text-green-600">Báo khi giao hàng</span>
               </div>
               <Separator />
               <div className="flex justify-between text-lg font-semibold">
