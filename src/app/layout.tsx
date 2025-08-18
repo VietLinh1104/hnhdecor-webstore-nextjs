@@ -8,6 +8,35 @@ export const metadata: Metadata = {
   title: 'H&H Decor - Cửa hàng đồ trang trí trực tuyến',
   description:
     'Khám phá bộ sưu tập nội thất decor hiện đại và tiện nghi tại H&H Decor. Mua sắm trực tuyến với nhiều ưu đãi hấp dẫn.',
+  icons: {
+    icon: '/icon/favicon.ico', // favicon
+    shortcut: '/icon/favicon.ico',
+    apple: '/icon/apple-touch-icon.png',
+  },
+  openGraph: {
+    title: 'H&H Decor - Cửa hàng đồ trang trí trực tuyến',
+    description:
+      'Khám phá bộ sưu tập nội thất decor hiện đại và tiện nghi tại H&H Decor. Mua sắm trực tuyến với nhiều ưu đãi hấp dẫn.',
+    url: 'https://hnhdecor.com',
+    siteName: 'H&H Decor',
+    images: [
+      {
+        url: '/icon/thumb.jpg', // ảnh thumbnail hiển thị khi share
+        width: 1200,
+        height: 630,
+        alt: 'H&H Decor',
+      },
+    ],
+    locale: 'vi_VN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'H&H Decor - Cửa hàng đồ trang trí trực tuyến',
+    description:
+      'Khám phá bộ sưu tập nội thất decor hiện đại và tiện nghi tại H&H Decor.',
+    images: ['/icon/thumb.jpg'], // thumbnail cho Twitter
+  },
 };
 
 export default function RootLayout({
