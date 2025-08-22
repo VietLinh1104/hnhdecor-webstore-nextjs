@@ -30,16 +30,20 @@ export const ProductDetailSection = ({
       const urlObj = new URL(url);
       const videoId = urlObj.searchParams.get("v");
       if (videoId) {
-        return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
+        return `https://www.youtube.com/embed/${videoId}`;
       }
       if (urlObj.hostname === "youtu.be") {
-        return `https://www.youtube.com/embed${urlObj.pathname}?autoplay=1&mute=1`;
+        return `https://www.youtube.com/embed${urlObj.pathname}`;
+      }
+      if (urlObj.pathname.startsWith("/shorts/")) {
+        return `https://www.youtube.com/embed${urlObj.pathname.replace("/shorts", "")}`;
       }
       return url;
     } catch {
       return url;
     }
   };
+
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -182,37 +186,33 @@ export const ProductDetailSection = ({
       order-2 md:order-1
     "
         >
-          {product.material && (() => {
-            let videoId = "";
-            try {
-              const urlObj = new URL(product.material);
-              videoId = urlObj.searchParams.get("v") || urlObj.pathname.slice(1);
-            } catch { }
-            const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-
-            return (
-              <div
-                onClick={() => setMainImage("video")}
-                className={`relative w-[70px] h-[70px] min-w-[70px] border rounded cursor-pointer overflow-hidden transition-all duration-200 ${mainImage === "video" ? "border-orange-500" : "border-gray-300"
-                  }`}
-              >
-                <img
-                  src={thumbnailUrl}
-                  alt="Video thumbnail"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                  <svg
-                    className="w-6 h-6 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                </div>
+          {product.material && product.images?.length > 0 && (
+            <div
+              onClick={() => setMainImage("video")}
+              className={`relative w-[70px] h-[70px] min-w-[70px] border rounded cursor-pointer overflow-hidden transition-all duration-200 ${mainImage === "video" ? "border-orange-500" : "border-gray-300"
+                }`}
+            >
+              {/* Ảnh sản phẩm đầu tiên làm thumbnail video */}
+              <Image
+                src={product.images[0].url}
+                alt="Video thumbnail"
+                width={70}
+                height={70}
+                className="w-full h-full object-cover"
+              />
+              {/* Overlay icon play */}
+              <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M8 5v14l11-7z" />
+                </svg>
               </div>
-            );
-          })()}
+            </div>
+          )}
+
 
           {product.images.map((img, index) => (
             <Image
@@ -301,8 +301,8 @@ export const ProductDetailSection = ({
                     key={value}
                     onClick={() => handleOptionSelect(opt.title, value)}
                     className={`w-8 h-8 rounded-full border-2 ${selectedOptions[opt.title] === value
-                        ? "border-orange-500"
-                        : "border-gray-300"
+                      ? "border-orange-500"
+                      : "border-gray-300"
                       }`}
                     style={{ backgroundColor: value }}
                     aria-label={`Color ${value}`}
@@ -312,8 +312,8 @@ export const ProductDetailSection = ({
                     key={value}
                     onClick={() => handleOptionSelect(opt.title, value)}
                     className={`cursor-pointer ${selectedOptions[opt.title] === value
-                        ? "bg-orange-500 text-white"
-                        : "bg-gray-100 text-gray-800"
+                      ? "bg-orange-500 text-white"
+                      : "bg-gray-100 text-gray-800"
                       }`}
                   >
                     {value}
