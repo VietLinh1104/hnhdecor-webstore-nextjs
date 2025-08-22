@@ -49,7 +49,7 @@ export const ProductDescriptionSection = ({
   };
 
   return (
-    <div className="w-full col-span-2">
+    <div className="w-full col-span-1 md:col-span-2">
       {/* Tabs */}
       <div className="flex border-b mb-6">
         <button

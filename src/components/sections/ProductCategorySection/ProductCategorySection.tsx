@@ -30,7 +30,7 @@ export const ProductCategorySection = (): JSX.Element => {
       </div>
 
       {/* Categories Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4  lg:mx-20 ">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6  lg:mx-16 ">
         {categories.map((category) => (
           <Link
             key={category.id}

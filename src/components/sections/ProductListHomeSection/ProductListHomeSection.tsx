@@ -97,11 +97,7 @@ export const ProductListHomeSection = (): JSX.Element => {
                 Tất cả sản phẩm
               </Button>
             </Link>
-            <Link href="/categories">
-              <Button className="bg-[#ec720e] hover:bg-orange-700">
-                Danh mục
-              </Button>
-            </Link>
+
           </div>
         </div>
       </div>
